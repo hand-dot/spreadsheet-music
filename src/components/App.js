@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import Slider from 'react-toolbox/lib/slider';
+import Slider from 'react-toolbox/lib/slider/Slider';
 import logo from '../resource/logo.svg';
 import '../css/App.css';
 import BufferLoader from '../js/bufferloader.js';
@@ -191,11 +191,11 @@ class Sequencer extends Component {
     );
   }
 
-    handleSliderChange(slider, value){
-      const newState = {};
-      newState[slider] = value;
-      this.setState(newState);
-    }
+  handleSliderChange(slider, value){
+    const newState = {};
+    newState[slider] = value;
+    this.setState(newState);
+  }
 
   shuffleNotes(){
     let tr = this.state.tracks.slice();
