@@ -1,4 +1,4 @@
-var BufferLoader = function(context, urlList, callback) {
+let BufferLoader = function(context, urlList, callback) {
   this.context = context;
   this.urlList = urlList;
   this.onload = callback;
@@ -8,11 +8,11 @@ var BufferLoader = function(context, urlList, callback) {
 
 BufferLoader.prototype.loadBuffer = function(url, index) {
   // Load buffer asynchronously
-  var request = new XMLHttpRequest();
+  let request = new XMLHttpRequest();
   request.open("GET", url, true);
   request.responseType = "arraybuffer";
 
-  var loader = this;
+  let loader = this;
 
   request.onload = function() {
     // Asynchronously decode the audio file data in request.response
@@ -39,7 +39,7 @@ BufferLoader.prototype.loadBuffer = function(url, index) {
 };
 
 BufferLoader.prototype.load = function() {
-  for (var i = 0; i < this.urlList.length; ++i)
+  for (let i = 0; i < this.urlList.length; ++i)
   this.loadBuffer(this.urlList[i], i);
 };
 

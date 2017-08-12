@@ -1,20 +1,17 @@
 import React, { Component } from 'react';
 import Slider from 'react-toolbox/lib/slider/Slider';
 
+//constant
 import {SCHEDULER_TICK,SCHEDULER_LOOK_AHEAD} from '../constants'
 
 //script
 import BufferLoader from '../scripts/bufferloader.js';
+import timerWorker from '../scripts/timerWorker.js';
+import sounds from '../scripts/sounds.js';
 
 //component
 import Track from './Track.js';
 import LEDLine from './LEDLine.js';
-
-//sounds
-import hihat_open from '../resource/sounds/hihat_open.wav';
-import hihat_close from '../resource/sounds/hihat_close.wav';
-import snare from '../resource/sounds/snare.wav';
-import kick from '../resource/sounds/kick.wav';
 
 //style
 import '../style/Sequencer.css';
@@ -26,37 +23,9 @@ let audioContext = new AudioContext();
 //loadimg audio buffers
 let bufferLoader = new BufferLoader(
   audioContext,
-  [hihat_open,hihat_close,snare,kick],
+  sounds,
   ()=>console.log('audio resource loading finished.'));
 bufferLoader.load();
-
-let scritp = `
-  let timerID=null;
-  let interval=100;
-
-  this.onmessage=function(e){
-    if (e.data==="start") {
-      console.log("starting");
-      timerID=setInterval(function(){postMessage("tick");},interval)
-    }
-    else if (e.data.interval) {
-      console.log("setting interval");
-      interval=e.data.interval;
-      console.log("interval="+interval);
-      if (timerID) {
-        clearInterval(timerID);
-        timerID=setInterval(function(){postMessage("tick");},interval)
-      }
-    }
-    else if (e.data==="stop") {
-      console.log("stopping");
-      clearInterval(timerID);
-      timerID=null;
-    }
-  };
-  `;
-let blobURL = window.URL.createObjectURL(new Blob([scritp]));
-let timerWorker = new Worker(blobURL);
 
 timerWorker.postMessage({"interval": SCHEDULER_TICK});
 
