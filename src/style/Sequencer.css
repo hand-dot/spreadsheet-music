@@ -1,97 +1,20 @@
-body {
-  font: 14px "Century Gothic", Futura, sans-serif;
-  margin: 20px;
+body{
+  background: #222;
+  color: #FFF;
 }
 
-.track{
-  display: block;
-  margin: 4px 0;
-  padding: 0 8px;
-}
-.track-name{
-  display: inline-block;
-  min-width: 120px;
-  margin:0 8px;
-  font-weight: bold;
-}
-
-.note {
-  background-color: #FFF;
-  border: 1px solid #999;
-  /*font-size: 1.5em;*/
-  height: 32px;
-  width: 32px;
-  margin: 0 4px;
-  text-align: center;
-  vertical-align: middle;
-  /*display:inline-flex;*/
-}
-
-.note:focus {
-  outline: none;
+table{
+  color: #222;
 }
 
 .led{
-  background-color: #666;
+  background-color: #222;
   height: 8px;
-  width: 32px;
-  margin: 0 4px;
+  width: 6.25%;
   display:inline-flex;
 }
 
-.led:focus {
-  outline: none;
-}
-
 .led-playing {
-  background-color: #99F;
-}
-
-.area-play{
-  display: inline-block;
-  min-width: 120px;
-  text-align: center;
-  margin:4px;
-}
-
-.button-play{
-  background-color: #FFF;
-  width: 100px;
-  height: 32px;
-  text-align: center;
-  font-size:1.2em;
-}
-
-.area-shuffle{
-  display: inline-block;
-  min-width: 120px;
-  text-align: center;
-  margin:4px;
-}
-
-.button-shuffle{
-  background-color: #FFF;
-  width: 100px;
-  height: 32px;
-  text-align: center;
-  font-size:1.2em;
-}
-
-.area-bpm{
-  display: inline-block;
-  margin:4px 12px;
-}
-
-.area-swing{
-  display: inline-block;
-  margin:4px 12px;
-}
-
-.sequencer{
-  background-image: linear-gradient(to bottom, #FFF, #DDD);
-  border: 1px solid #666;
-  box-shadow: 6px 6px 2px #999;
-  margin: 8px;
-  padding: 16px 8px 8px;
-  width: 840px;
+  transition: all 300ms 0s ease;
+  background-color: #5292f7;
 }

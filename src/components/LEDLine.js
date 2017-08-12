@@ -6,9 +6,9 @@ class LEDLine extends Component {
         <div className="track">
           <span className="track-name"></span>
           {Array(16).fill().map((x,i) =>
-          <button className={
+          <div className={
             (this.props.isPlaying && this.props.idxCurrent16thNote === (i+1)%16)? "led  led-playing" : "led"
-            } key={i} disabled />)}
+            } key={i} disabled ></div>)}
         </div>
     );
   }
