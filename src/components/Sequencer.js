@@ -37,7 +37,7 @@ class Sequencer extends Component {
         drum:[
         'kick','hihat_close','hihat_close','hihat_open',
         'snare','hihat_close','hihat_close','hihat_open',
-        'kick','hihat_close','hihat_close','hihat_open',
+        'kick','hihat_close','kick','hihat_open',
         'snare','hihat_close','hihat_close','hihat_open'
       ]},
       bpm: 100,
@@ -133,7 +133,6 @@ class Sequencer extends Component {
   }
 
   scheduleSound(idxNote, time) {
-      // this.state.tracks.map((tr, i) =>{
       Object.entries(this.state.tracks).map((entrie,i) =>{
         let [key,value] = entrie;
         let source
