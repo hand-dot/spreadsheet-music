@@ -7,7 +7,7 @@ import {SCHEDULER_TICK,SCHEDULER_LOOK_AHEAD} from '../constants'
 //script
 import BufferLoader from '../scripts/bufferloader.js';
 import timerWorker from '../scripts/timerWorker.js';
-import sounds from '../scripts/sounds.js';
+import soundObjs from '../scripts/sounds.js';
 
 //component
 import Track from './Track.js';
@@ -23,7 +23,7 @@ let audioContext = new AudioContext();
 //loadimg audio buffers
 let bufferLoader = new BufferLoader(
   audioContext,
-  sounds,
+  soundObjs,
   ()=>console.log('audio resource loading finished.'));
 bufferLoader.load();
 
@@ -33,16 +33,13 @@ class Sequencer extends Component {
   constructor() {
     super();
     this.state = {
-      tracks: [
-        {name:"hihat-open",
-         steps: [null,null,null,null,null,null,null,null,null,null,'■',null,null,null,null,null]},
-        {name:"hihat-close",
-         steps: ['■','■','■',null,'■',null,'■',null,'■',null,null,null,'■',null,'■',null]},
-        {name:"snare",
-         steps: [null,null,null,null,'■',null,null,null,null,null,null,null,'■',null,null,'■']},
-        {name:"kick",
-         steps: ['■',null,null,null,null,null,null,'■',null,'■','■',null,null,'■',null,null]},
-      ],
+      tracks: {
+        drum:[
+        'kick','hihat_close','hihat_close','hihat_open',
+        'snare','hihat_close','hihat_close','hihat_open',
+        'kick','hihat_close','hihat_close','hihat_open',
+        'snare','hihat_close','hihat_close','hihat_open'
+      ]},
       bpm: 100,
       isPlaying: false,
       idxCurrent16thNote: 0,
@@ -61,11 +58,11 @@ class Sequencer extends Component {
     return (
       <div className="sequencer">
         <div className="area-tracks">
-          {Array(4).fill().map((x,i) =>
+          {Object.entries(this.state.tracks).map((entrie,i) =>
             <Track 
-              key={i}
-              name={this.state.tracks[i].name}
-              squares={this.state.tracks[i].steps}
+              key = {i}
+              name={entrie[0]}
+              squares={entrie[1]}
               handler={(idx)=>this.toggleStep(i, idx)}
             />
             )
@@ -80,9 +77,6 @@ class Sequencer extends Component {
           <button className="button-play" onClick={()=>this.togglePlayButton()}>
             {this.state.isPlaying ? '■STOP' : '▶PLAY!'}
           </button>
-        </div>
-        <div className="area-shuffle">
-          <button className="button-shuffle" onClick={()=>this.shuffleNotes()}>SHUFFLE</button>
         </div>
         <div className="area-bpm">
           <span className="label-bpm">[bpm]</span>
@@ -106,23 +100,6 @@ class Sequencer extends Component {
     const newState = {};
     newState[slider] = value;
     this.setState(newState);
-  }
-
-  shuffleNotes(){
-    let tr = this.state.tracks.slice();
-    tr[0].steps = this.generateSequence(0.1);
-    tr[1].steps = this.generateSequence(0.6);
-    tr[2].steps = this.generateSequence(0.25);
-    tr[3].steps = this.generateSequence(0.33);
-    this.setState({tracks: tr});
-  }
-
-  generateSequence(density){
-    let newSeq = Array(16).fill().map((x,i) =>{
-      let random = Math.random();
-      return random <= density ? '■' : null;
-    });
-    return newSeq;
   }
 
   toggleStep(idxTrack, idxNote) {
@@ -156,11 +133,13 @@ class Sequencer extends Component {
   }
 
   scheduleSound(idxNote, time) {
-      this.state.tracks.map((tr, i) =>{
+      // this.state.tracks.map((tr, i) =>{
+      Object.entries(this.state.tracks).map((entrie,i) =>{
+        let [key,value] = entrie;
         let source
-        if(tr.steps[idxNote]){
+        if(value[idxNote]){
             source = audioContext.createBufferSource();
-            source.buffer = bufferLoader.bufferList[i];
+            source.buffer = bufferLoader.bufferObjs[value[idxNote]];
             source.connect(audioContext.destination);
             source.start(time);
         }

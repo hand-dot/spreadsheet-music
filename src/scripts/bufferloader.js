@@ -1,12 +1,14 @@
-let BufferLoader = function(context, urlList, callback) {
+let BufferLoader = function(context, soundObjs, callback) {
   this.context = context;
-  this.urlList = urlList;
+  //{key:url}
+  this.soundObjs = soundObjs;
   this.onload = callback;
-  this.bufferList = [];
+  // this.bufferList = [];
+  this.bufferObjs = {};
   this.loadCount = 0;
 };
 
-BufferLoader.prototype.loadBuffer = function(url, index) {
+BufferLoader.prototype.loadBuffer = function({key,url}) {
   // Load buffer asynchronously
   let request = new XMLHttpRequest();
   request.open("GET", url, true);
@@ -23,9 +25,9 @@ BufferLoader.prototype.loadBuffer = function(url, index) {
           alert('error decoding file data: ' + url);
           return;
         }
-        loader.bufferList[index] = buffer;
-        if (++loader.loadCount === loader.urlList.length)
-          loader.onload(loader.bufferList);
+        loader.bufferObjs[key] = buffer;
+        if (++loader.loadCount === loader.soundObjs.length)
+          loader.onload(loader.bufferObjs);
       },
       function(error) {
         console.error('decodeAudioData error', error);
@@ -39,8 +41,9 @@ BufferLoader.prototype.loadBuffer = function(url, index) {
 };
 
 BufferLoader.prototype.load = function() {
-  for (let i = 0; i < this.urlList.length; ++i)
-  this.loadBuffer(this.urlList[i], i);
+  Object.entries(this.soundObjs).forEach((entrie)=>{
+    this.loadBuffer({key:entrie[0],url:entrie[1]});
+  });
 };
 
 export default BufferLoader;
