@@ -8,6 +8,7 @@ import 'reset-css/reset.css';
 
 //component
 import Sequencer from './Sequencer';
+import CantPlay from './CantPlay';
 
 //toolbox
 import '../toolbox/theme.css';
@@ -46,7 +47,7 @@ class App extends Component {
               if (this.state.operatingCondition) {
                 return <Sequencer />;
               } else {
-                return <p>Can Play Only the Chrome of Desktop</p>;
+                return <CantPlay/>;
               }
             })()}
           </div>
