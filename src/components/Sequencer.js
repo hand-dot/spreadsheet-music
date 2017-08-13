@@ -57,6 +57,7 @@ class Sequencer extends Component {
   render() {
     return (
       <div>
+        <h3>How to Play → <a href="https://youtu.be/FcaDeMz2H28">https://youtu.be/FcaDeMz2H28</a></h3>
         <SequenceStep
           isPlaying={this.state.isPlaying}
           idxCurrent16thNote={this.state.idxCurrent16thNote}
