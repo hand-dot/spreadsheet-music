@@ -37,15 +37,15 @@ class Sequencer extends Component {
     super();
     this.state = {
       tracks: {
-        P1: [],
-        P2:[]
+        P1: ['Kick','','CloseHihat','','Snare','','CloseHihat','Kick','CloseHihat','Snare','OpenHihat','','Kick','','OpenHihat'],
+        P2:['C','','','','','','','D','','','','','','','','']
       },
       bpm: 100,
       isPlaying: false,
       idxCurrent16thNote: 0,
       startTime: 0.0,
       nextNoteTime: 0.0,
-      swing: 0
+      swing: 50
     };
     timerWorker.onmessage = function(e) {
       if (e.data === "tick") {
@@ -56,36 +56,34 @@ class Sequencer extends Component {
 
   render() {
     return (
-      <div>
+      <div className="sequencer">
         <h3>How to Play → <a href="https://youtu.be/FcaDeMz2H28">https://youtu.be/FcaDeMz2H28</a></h3>
         <SequenceStep
           isPlaying={this.state.isPlaying}
           idxCurrent16thNote={this.state.idxCurrent16thNote}
         />
-        <div className="sequencer">
-          <div className="handsontable" id="hot" />
-          <p>BPM</p>
-          <Slider
-            min={0}
-            max={250}
-            step={1}
-            editable
-            pinned
-            value={this.state.bpm}
-            onChange={this.handleSliderChange.bind(this, "bpm")}
-          />
-          <p>Swing</p>
-          <Slider
-            min={0}
-            max={100}
-            step={1}
-            editable
-            pinned
-            value={this.state.swing}
-            onChange={this.handleSliderChange.bind(this, "swing")}
-          />
-          <Button raised label={this.state.isPlaying ? "STOP" : "PLAY"} onClick={() => this.togglePlayButton()}/>
-        </div>
+        <div className="handsontable" id="hot" />
+        <p>BPM</p>
+        <Slider
+          min={0}
+          max={250}
+          step={1}
+          editable
+          pinned
+          value={this.state.bpm}
+          onChange={this.handleSliderChange.bind(this, "bpm")}
+        />
+        <p>Swing</p>
+        <Slider
+          min={0}
+          max={100}
+          step={1}
+          editable
+          pinned
+          value={this.state.swing}
+          onChange={this.handleSliderChange.bind(this, "swing")}
+        />
+        <Button raised label={this.state.isPlaying ? "STOP" : "PLAY"} onClick={() => this.togglePlayButton()}/>
       </div>
     );
   }
