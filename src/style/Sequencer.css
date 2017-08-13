@@ -1,21 +1,14 @@
-body{
-  background: #222;
-  color: #FFF;
-  font-size: 9px;
+.handsontable{
+  margin-bottom: 20px;
 }
 
-table{
-  color: #222;
-}
-
-.led{
-  background-color: #222;
+.step{
   height: 8px;
-  width: 6.25%;
+  width: 6.2%;
   display:inline-flex;
 }
 
-.led-playing {
-  transition: all 300ms 0s ease;
-  background-color: #5292f7;
+.step-playing {
+  transition: all 100ms 0s ease;
+  background-color: #3f51b5;
 }

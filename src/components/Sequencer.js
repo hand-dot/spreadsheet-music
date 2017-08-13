@@ -1,18 +1,19 @@
-import React, { Component } from "react";
-import Slider from "react-toolbox/lib/slider/Slider";
-import Handsontable from "handsontable";
-import "handsontable/dist/handsontable.full.css";
+import React, { Component } from 'react';
+import Slider  from 'react-toolbox/lib/slider';
+import Button  from 'react-toolbox/lib/button/Button';
+import Handsontable from 'handsontable';
+import 'handsontable/dist/handsontable.full.css';
 
 //constant
-import { SCHEDULER_TICK, SCHEDULER_LOOK_AHEAD } from "../constants";
+import { SCHEDULER_TICK, SCHEDULER_LOOK_AHEAD } from '../constants';
 
 //component
-import LEDLine from './LEDLine.js';
+import SequenceStep from './SequenceStep';
 
 //script
-import BufferLoader from "../scripts/bufferloader.js";
-import timerWorker from "../scripts/timerWorker.js";
-import soundObjs from "../scripts/sounds.js";
+import BufferLoader from '../scripts/bufferloader';
+import timerWorker from '../scripts/timerWorker';
+import soundObjs from '../scripts/sounds';
 
 //style
 import '../style/Sequencer.css';
@@ -26,8 +27,10 @@ let bufferLoader = new BufferLoader(audioContext, soundObjs, () =>
   console.log("audio resource loading finished.")
 );
 bufferLoader.load();
-
 timerWorker.postMessage({ interval: SCHEDULER_TICK });
+
+//handsontable
+let hot;
 
 class Sequencer extends Component {
   constructor() {
@@ -54,50 +57,33 @@ class Sequencer extends Component {
   render() {
     return (
       <div>
-        <LEDLine
+        <SequenceStep
           isPlaying={this.state.isPlaying}
           idxCurrent16thNote={this.state.idxCurrent16thNote}
         />
         <div className="sequencer">
-          <div className="area-tracks">
-            <div id="hot" />
-          </div>
-          <div className="area-play">
-            <button
-              className="button-play"
-              onClick={() => this.togglePlayButton()}
-            >
-              {this.state.isPlaying ? "■STOP" : "▶PLAY!"}
-            </button>
-          </div>
-          <div className="area-bpm">
-            <span className="label-bpm">[bpm]</span>
-            <div style={{ display: "inline-block", width: "200px" }}>
-              <Slider
-                min={40}
-                max={250}
-                step={1}
-                editable
-                pinned
-                value={this.state.bpm}
-                onChange={this.handleSliderChange.bind(this, "bpm")}
-              />
-            </div>
-          </div>
-          <div className="area-swing">
-            <span className="label-swing">[swing]</span>
-            <div style={{ display: "inline-block", width: "200px" }}>
-              <Slider
-                min={0}
-                max={100}
-                step={1}
-                editable
-                pinned
-                value={this.state.swing}
-                onChange={this.handleSliderChange.bind(this, "swing")}
-              />
-            </div>
-          </div>
+          <div className="handsontable" id="hot" />
+          <p>BPM</p>
+          <Slider
+            min={0}
+            max={250}
+            step={1}
+            editable
+            pinned
+            value={this.state.bpm}
+            onChange={this.handleSliderChange.bind(this, "bpm")}
+          />
+          <p>Swing</p>
+          <Slider
+            min={0}
+            max={100}
+            step={1}
+            editable
+            pinned
+            value={this.state.swing}
+            onChange={this.handleSliderChange.bind(this, "swing")}
+          />
+          <Button raised label={this.state.isPlaying ? "STOP" : "PLAY"} onClick={() => this.togglePlayButton()}/>
         </div>
       </div>
     );
@@ -120,9 +106,10 @@ class Sequencer extends Component {
     });
 
     let container = document.getElementById("hot");
-    let hot = new Handsontable(container, {
+    hot = new Handsontable(container, {
+      autoInsertRow:false,
       data: values,
-      colWidths: Math.round(window.innerWidth / 16),
+      colWidths: Math.round(window.innerWidth / 16) - 20/16,
       colHeaders: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
       columns: Array(16).fill({
         type: 'autocomplete',
@@ -168,7 +155,7 @@ class Sequencer extends Component {
 
   scheduleSound(idxNote, time) {
     Object.entries(this.state.tracks).map((entrie, i) => {
-      let [key, value] = entrie;
+      let value = entrie[1];
       let source;
       if (value[idxNote]) {
         source = audioContext.createBufferSource();

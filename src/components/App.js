@@ -1,12 +1,17 @@
-import React, { Component } from "react";
-import UAParser from "ua-parser-js";
-import "reset-css/reset.css";
-
-//component
-import Sequencer from "./Sequencer.js";
+import React, { Component } from 'react';
+import ThemeProvider from 'react-toolbox/lib/ThemeProvider';
+import UAParser from 'ua-parser-js';
 
 //style
-import "../style/App.css";
+import '../style/App.css';
+import 'reset-css/reset.css';
+
+//component
+import Sequencer from './Sequencer';
+
+//toolbox
+import '../toolbox/theme.css';
+import theme from '../toolbox/theme';
 
 class App extends Component {
   constructor() {
@@ -21,29 +26,32 @@ class App extends Component {
     parser.setUA(window.navigator.userAgent);
     let result = parser.getResult();
     if (
-      result.browser.name === "Chrome" &&
-      result.device.type !== "mobile" &&
-      result.device.type !== "tablet"
+      result.browser.name === 'Chrome' &&
+      result.device.type !== 'mobile' &&
+      result.device.type !== 'tablet'
     ) {
-      console.log("動作します。");
       this.setState({ operatingCondition: true });
     }
   }
 
   render() {
     return (
-      <div className="App">
-        <div className="App-header">
-          <h2>SpreadSheet meets Music</h2>
+      <ThemeProvider theme={theme}>
+        <div className="App">
+          <div className="App-header">
+            <h1>SpreadSheet meets Music<span>(Beta)</span></h1>
+          </div>
+          <div className="App-body">
+            {(() => {
+              if (this.state.operatingCondition) {
+                return <Sequencer />;
+              } else {
+                return <p>Can Play Only the Chrome of Desktop</p>;
+              }
+            })()}
+          </div>
         </div>
-        {(() => {
-          if (this.state.operatingCondition) {
-            return <Sequencer />;
-          } else {
-            return <p>デスクトップ版クロームブラウザ以外では動作しません。</p>;
-          }
-        })()}
-      </div>
+      </ThemeProvider>
     );
   }
 

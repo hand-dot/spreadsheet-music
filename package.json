@@ -8,15 +8,15 @@
     "lodash": "^4.17.4",
     "react": "^15.6.1",
     "react-dom": "^15.6.1",
-    "react-redux": "^5.0.6",
     "react-scripts": "1.0.11",
     "react-toolbox": "^2.0.0-beta.12",
-    "redux": "^3.7.2",
+    "react-toolbox-themr": "^1.0.2",
     "reset-css": "^2.2.1",
     "ua-parser-js": "^0.7.14"
   },
   "scripts": {
     "start": "react-scripts start",
+    "toolbox": "react-toolbox-themr",
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
