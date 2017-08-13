@@ -29,50 +29,13 @@ bufferLoader.load();
 
 timerWorker.postMessage({ interval: SCHEDULER_TICK });
 
-//handosontable
-let hot;
-
 class Sequencer extends Component {
   constructor() {
     super();
     this.state = {
       tracks: {
-        P1: [
-          '',
-          '',
-          '',
-          '',
-          '',
-          '',
-          '',
-          '',
-          '',
-          '',
-          '',
-          '',
-          '',
-          '',
-          '',
-          ''
-        ],
-        P2:[
-          '',
-          '',
-          '',
-          '',
-          '',
-          '',
-          '',
-          '',
-          '',
-          '',
-          '',
-          '',
-          '',
-          '',
-          '',
-          ''   
-        ]
+        P1: [],
+        P2:[]
       },
       bpm: 100,
       isPlaying: false,
@@ -150,13 +113,23 @@ class Sequencer extends Component {
       return entrie;
     });
 
+    let autocompleteSource = [];
+    Object.entries(soundObjs).map((entrie, i) => {
+      autocompleteSource.push(entrie[0]);
+      return entrie;
+    });
+
     let container = document.getElementById("hot");
-    hot = new Handsontable(container, {
+    let hot = new Handsontable(container, {
       data: values,
       colWidths: Math.round(window.innerWidth / 16),
       colHeaders: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
-      // rowHeaderWidth:Math.round(window.innerWidth / 17),
-      // rowHeaders: keys
+      columns: Array(16).fill({
+        type: 'autocomplete',
+        source: autocompleteSource,
+        strict: true,
+        allowInvalid: false
+      })
     });
   }
 
@@ -164,13 +137,6 @@ class Sequencer extends Component {
     const newState = {};
     newState[slider] = value;
     this.setState(newState);
-  }
-
-  toggleStep(idxTrack, idxNote) {
-    let tr = this.state.tracks.slice();
-    tr[idxTrack].steps[idxNote] =
-      tr[idxTrack].steps[idxNote] === null ? "■" : null;
-    this.setState({ tracks: tr });
   }
 
   togglePlayButton() {
@@ -210,8 +176,6 @@ class Sequencer extends Component {
         source.connect(audioContext.destination);
         source.start(time);
       }
-      //handosontableのセルの選択
-      // hot.selectCell(0,this.state.idxCurrent16thNote,0,this.state.idxCurrent16thNote);
       return source;
     });
   }
