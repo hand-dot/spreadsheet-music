@@ -7,6 +7,9 @@ import 'handsontable/dist/handsontable.full.css';
 // constant
 import { SCHEDULER_TICK, SCHEDULER_LOOK_AHEAD } from '../constants';
 
+// data
+import { drum, piano } from '../data/tracks';
+
 // component
 import SequenceStep from './SequenceStep';
 
@@ -34,8 +37,8 @@ class Sequencer extends Component {
     super();
     this.state = {
       tracks: {
-        drum: ['Kick', '', 'CloseHihat', '', 'Snare', '', 'CloseHihat', 'Kick', 'CloseHihat', 'Snare', 'OpenHihat', '', 'Kick', '', 'OpenHihat'],
-        piano: ['C', '', '', '', '', '', '', 'D', '', '', '', '', '', '', '', ''],
+        drum,
+        piano,
       },
       bpm: 100,
       isPlaying: false,
