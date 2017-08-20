@@ -1,6 +1,6 @@
-let BufferLoader = function(context, soundObjs, callback) {
+const BufferLoader = function (context, soundObjs, callback) {
   this.context = context;
-  //{key:url}
+  // {key:url}
   this.soundObjs = soundObjs;
   this.onload = callback;
   // this.bufferList = [];
@@ -8,19 +8,19 @@ let BufferLoader = function(context, soundObjs, callback) {
   this.loadCount = 0;
 };
 
-BufferLoader.prototype.loadBuffer = function({key,url}) {
+BufferLoader.prototype.loadBuffer = function ({ key, url }) {
   // Load buffer asynchronously
-  let request = new XMLHttpRequest();
-  request.open("GET", url, true);
-  request.responseType = "arraybuffer";
+  const request = new XMLHttpRequest();
+  request.open('GET', url, true);
+  request.responseType = 'arraybuffer';
 
-  let loader = this;
+  const loader = this;
 
-  request.onload = function() {
+  request.onload = function () {
     // Asynchronously decode the audio file data in request.response
     loader.context.decodeAudioData(
       request.response,
-      function(buffer) {
+      (buffer) => {
         if (!buffer) {
           alert('error decoding file data: ' + url);
           return;
@@ -29,20 +29,20 @@ BufferLoader.prototype.loadBuffer = function({key,url}) {
         if (++loader.loadCount === loader.soundObjs.length)
           loader.onload(loader.bufferObjs);
       },
-      function(error) {
+      (error) => {
         console.error('decodeAudioData error', error);
-      }
+      },
     );
-  }
-  request.onerror = function() {
+  };
+  request.onerror = function () {
     alert('BufferLoader: XHR error');
-  }
+  };
   request.send();
 };
 
-BufferLoader.prototype.load = function() {
-  Object.entries(this.soundObjs).forEach((entrie)=>{
-    this.loadBuffer({key:entrie[0],url:entrie[1]});
+BufferLoader.prototype.load = function () {
+  Object.entries(this.soundObjs).forEach((entrie) => {
+    this.loadBuffer({ key: entrie[0], url: entrie[1] });
   });
 };
 

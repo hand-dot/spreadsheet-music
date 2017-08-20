@@ -1,4 +1,4 @@
-let scritp = `
+const scritp = `
   let timerID=null;
   let interval=100;
 

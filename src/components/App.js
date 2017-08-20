@@ -1,16 +1,16 @@
 import React, { Component } from 'react';
 import ThemeProvider from 'react-toolbox/lib/ThemeProvider';
 import UAParser from 'ua-parser-js';
-
-//style
-import '../style/App.css';
 import 'reset-css/reset.css';
 
-//component
+// style
+import '../style/App.css';
+
+// component
 import Sequencer from './Sequencer';
 import CantPlay from './CantPlay';
 
-//toolbox
+// toolbox
 import '../toolbox/theme.css';
 import theme from '../toolbox/theme';
 
@@ -18,14 +18,14 @@ class App extends Component {
   constructor() {
     super();
     this.state = {
-      operatingCondition: false
+      operatingCondition: false,
     };
   }
 
   componentWillMount() {
-    let parser = new UAParser();
+    const parser = new UAParser();
     parser.setUA(window.navigator.userAgent);
-    let result = parser.getResult();
+    const result = parser.getResult();
     if (
       result.browser.name === 'Chrome' &&
       result.device.type !== 'mobile' &&
@@ -34,6 +34,8 @@ class App extends Component {
       this.setState({ operatingCondition: true });
     }
   }
+
+  componentDidMount() {}
 
   render() {
     return (
@@ -46,17 +48,14 @@ class App extends Component {
             {(() => {
               if (this.state.operatingCondition) {
                 return <Sequencer />;
-              } else {
-                return <CantPlay/>;
               }
+              return <CantPlay />;
             })()}
           </div>
         </div>
       </ThemeProvider>
     );
   }
-
-  componentDidMount() {}
 }
 
 export default App;
