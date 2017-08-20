@@ -8,6 +8,7 @@
 
 .step{
   height: 8px;
+  /*width =  100/16 */
   width: 6.2%;
   display:inline-flex;
 }
