@@ -7,7 +7,7 @@ class SequenceStep extends Component {
         {Array(16).fill().map((x, i) =>
           (<div
             className={
-              (this.props.isPlaying && this.props.idxCurrent16thNote === (i + 1) % 16) ? 'step  step-playing' : 'step'
+              (this.props.isPlaying && this.props.idxCurrent16thNote === (i + 1) % 16) ? 'step  active' : 'step'
             }
             key={i}
             disabled

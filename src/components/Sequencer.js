@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import React, { Component } from 'react';
 import Slider from 'react-toolbox/lib/slider';
 import Button from 'react-toolbox/lib/button/Button';
@@ -8,7 +9,7 @@ import 'handsontable/dist/handsontable.full.css';
 import { SCHEDULER_TICK, SCHEDULER_LOOK_AHEAD } from '../constants';
 
 // data
-import { drum, piano } from '../data/tracks';
+import { drum, none } from '../data/tracks';
 
 // component
 import SequenceStep from './SequenceStep';
@@ -32,17 +33,21 @@ const bufferLoader = new BufferLoader(audioContext, soundObjs, () =>
 bufferLoader.load();
 timerWorker.postMessage({ interval: SCHEDULER_TICK });
 
+// handosontable
+let hot = null;
+
 class Sequencer extends Component {
   constructor() {
     super();
     this.state = {
-      tracks: {
-        drum,
-        piano,
-      },
+      tracks: [
+        { drum: _.cloneDeep(drum), piano: _.cloneDeep(none) },
+        { drum: _.cloneDeep(drum), piano: _.cloneDeep(none) },
+      ],
       bpm: 100,
       isPlaying: false,
       idxCurrent16thNote: 0,
+      bars: 1,
       startTime: 0.0,
       nextNoteTime: 0.0,
       swing: 0,
@@ -54,16 +59,12 @@ class Sequencer extends Component {
     }.bind(this);
   }
 
-  componentDidMount() {
-    const keys = [];
-    const values = [];
-    Object.entries(this.state.tracks).map((entrie) => {
-      const [key, value] = entrie;
-      keys.push(key);
-      values.push(value);
-      return entrie;
-    });
+  componentWillMount() {
+    window.location.hash = 1;
+  }
 
+  componentDidMount() {
+    const self = this;
     const autocompleteSource = [];
     Object.entries(soundObjs).map((entrie) => {
       autocompleteSource.push(entrie[0]);
@@ -71,10 +72,9 @@ class Sequencer extends Component {
     });
 
     const container = document.getElementById('hot');
-    // const hot = 
-    Handsontable(container, {
+    hot = Handsontable(container, {
       autoInsertRow: false,
-      data: values,
+      data: self.getData(),
       colWidths: Math.round(window.innerWidth / 16) - (20 / 16),
       colHeaders: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
       columns: Array(16).fill({
@@ -84,6 +84,35 @@ class Sequencer extends Component {
         allowInvalid: false,
       }),
     });
+
+    Handsontable.dom.addEvent(window, 'hashchange', () => {
+      hot.loadData(self.getData());
+      self.setState({
+        bars: parseInt(window.location.hash.replace('#', ''), 10),
+      });
+    });
+  }
+
+  getData() {
+    const keys = [];
+    const datas = [];
+    this.state.tracks.forEach((track) => {
+      Object.entries(track).map((entrie) => {
+        const [key, value] = entrie;
+        keys.push(key);
+        datas.push(value);
+        return entrie;
+      });
+    });
+    const page = parseInt(window.location.hash.replace('#', ''), 10) || 1;
+    const limit = 2;
+    let row = (page - 1) * limit;
+    const count = page * limit;
+    const part = [];
+    for (;row < count; row++) {
+      part.push(datas[row]);
+    }
+    return part;
   }
 
   handleSliderChange(slider, value) {
@@ -109,6 +138,17 @@ class Sequencer extends Component {
     }
   }
 
+  addBars() {
+    const tmp = this.state.tracks;
+    tmp.push({ drum: _.cloneDeep(none), piano: _.cloneDeep(none) });
+    hot.updateSettings({
+      data: tmp,
+    });
+    this.setState({
+      tracks: tmp,
+    });
+  }
+
   schedule() {
     while (this.state.nextNoteTime < audioContext.currentTime + SCHEDULER_LOOK_AHEAD) {
       this.scheduleSound(
@@ -120,7 +160,8 @@ class Sequencer extends Component {
   }
 
   scheduleSound(idxNote, time) {
-    Object.entries(this.state.tracks).map((entrie) => {
+    const track = this.state.tracks[this.state.bars - 1];
+    Object.entries(track).map((entrie) => {
       const value = entrie[1];
       let source;
       if (value[idxNote]) {
@@ -128,9 +169,17 @@ class Sequencer extends Component {
         source.buffer = bufferLoader.bufferObjs[value[idxNote]];
         source.connect(audioContext.destination);
         source.start(time);
+        source.stop(time + 0.3); // FIXME 適当
       }
       return source;
     });
+    if (this.state.idxCurrent16thNote === 15) {
+      const nowbars = parseInt(window.location.hash.replace('#', ''), 10);
+      this.setState({
+        bars: nowbars === this.state.tracks.length ? 1 : nowbars + 1,
+      });
+      window.location.hash = this.state.bars;
+    }
   }
 
   nextNote() {
@@ -141,8 +190,7 @@ class Sequencer extends Component {
         ? (1 / 4) + (0.00083 * this.state.swing)
         : (1 / 4) - (0.00083 * this.state.swing);
     this.setState({
-      nextNoteTime:
-        this.state.nextNoteTime + (noteRateWithSwingCalc * secondsPerBeat),
+      nextNoteTime: this.state.nextNoteTime + (noteRateWithSwingCalc * secondsPerBeat),
       idxCurrent16thNote: (this.state.idxCurrent16thNote + 1) % 16,
     });
   }
@@ -151,32 +199,42 @@ class Sequencer extends Component {
     return (
       <div className="sequencer">
         <h3>How to Play → <a href="https://youtu.be/FcaDeMz2H28">https://youtu.be/FcaDeMz2H28</a></h3>
+        <hr />
         <SequenceStep
           isPlaying={this.state.isPlaying}
           idxCurrent16thNote={this.state.idxCurrent16thNote}
         />
         <div className="handsontable" id="hot" />
-        <p>BPM</p>
-        <Slider
-          min={0}
-          max={250}
-          step={1}
-          editable
-          pinned
-          value={this.state.bpm}
-          onChange={this.handleSliderChange.bind(this, 'bpm')}
-        />
-        <p>Swing</p>
-        <Slider
-          min={0}
-          max={100}
-          step={1}
-          editable
-          pinned
-          value={this.state.swing}
-          onChange={this.handleSliderChange.bind(this, 'swing')}
-        />
-        <Button raised label={this.state.isPlaying ? 'STOP' : 'PLAY'} onClick={() => this.togglePlayButton()} />
+        <div className="pagination">
+          {Array(this.state.tracks.length).fill().map((x, i) =>
+            (<a className={this.state.bars === i + 1 ? 'active' : ''} href={`#${i + 1}`} key={i} >{i + 1}</a>))}
+        </div>
+        <div className="pagination">
+          <a href={`#${this.state.tracks.length}`} onClick={() => this.addBars()}>+</a>
+        </div>
+        <div>
+          <p>BPM</p>
+          <Slider
+            min={0}
+            max={250}
+            step={1}
+            editable
+            pinned
+            value={this.state.bpm}
+            onChange={this.handleSliderChange.bind(this, 'bpm')}
+          />
+          <p>Swing</p>
+          <Slider
+            min={0}
+            max={100}
+            step={1}
+            editable
+            pinned
+            value={this.state.swing}
+            onChange={this.handleSliderChange.bind(this, 'swing')}
+          />
+          <Button raised label={this.state.isPlaying ? 'STOP' : 'PLAY'} onClick={() => this.togglePlayButton()} />
+        </div>
       </div>
     );
   }
