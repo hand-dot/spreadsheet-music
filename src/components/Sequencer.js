@@ -6,7 +6,7 @@ import Handsontable from 'handsontable';
 import 'handsontable/dist/handsontable.full.css';
 
 // constant
-import { SCHEDULER_TICK, SCHEDULER_LOOK_AHEAD } from '../constants';
+import { SCHEDULER_TICK, SCHEDULER_LOOK_AHEAD, NUM_OF_INSTRUMENTS } from '../constants';
 
 // data
 import { drum, none } from '../data/tracks';
@@ -21,6 +21,8 @@ import soundObjs from '../scripts/sounds';
 
 // style
 import '../style/Sequencer.css';
+
+const parseUrlHash = () => parseInt(window.location.hash.replace('#', ''), 10) || 1;
 
 // audio context initialization
 window.AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -41,16 +43,16 @@ class Sequencer extends Component {
     super();
     this.state = {
       tracks: [
-        { drum: _.cloneDeep(drum), piano: _.cloneDeep(none) },
-        { drum: _.cloneDeep(drum), piano: _.cloneDeep(none) },
+        [_.cloneDeep(drum), _.cloneDeep(none)],
+        [_.cloneDeep(drum), _.cloneDeep(none)],
       ],
       bpm: 100,
+      swing: 0,
       isPlaying: false,
       idxCurrent16thNote: 0,
-      bars: 1,
+      currentBarsCount: 1,
       startTime: 0.0,
       nextNoteTime: 0.0,
-      swing: 0,
     };
     timerWorker.onmessage = function (e) {
       if (e.data === 'tick') {
@@ -88,31 +90,16 @@ class Sequencer extends Component {
     Handsontable.dom.addEvent(window, 'hashchange', () => {
       hot.loadData(self.getData());
       self.setState({
-        bars: parseInt(window.location.hash.replace('#', ''), 10),
+        currentBarsCount: parseUrlHash(),
       });
     });
   }
 
   getData() {
-    const keys = [];
-    const datas = [];
-    this.state.tracks.forEach((track) => {
-      Object.entries(track).map((entrie) => {
-        const [key, value] = entrie;
-        keys.push(key);
-        datas.push(value);
-        return entrie;
-      });
-    });
-    const page = parseInt(window.location.hash.replace('#', ''), 10) || 1;
-    const limit = 2;
-    let row = (page - 1) * limit;
-    const count = page * limit;
-    const part = [];
-    for (;row < count; row++) {
-      part.push(datas[row]);
-    }
-    return part;
+    const page = parseUrlHash();
+    const start = (page - 1) * NUM_OF_INSTRUMENTS;
+    const end = page * NUM_OF_INSTRUMENTS;
+    return _.slice(_.flatten(this.state.tracks), start, end);
   }
 
   handleSliderChange(slider, value) {
@@ -139,7 +126,7 @@ class Sequencer extends Component {
   }
 
   addBars() {
-    const tmp = this.state.tracks;
+    const tmp = _.cloneDeep(this.state.tracks);
     tmp.push({ drum: _.cloneDeep(none), piano: _.cloneDeep(none) });
     hot.updateSettings({
       data: tmp,
@@ -160,7 +147,7 @@ class Sequencer extends Component {
   }
 
   scheduleSound(idxNote, time) {
-    const track = this.state.tracks[this.state.bars - 1];
+    const track = this.state.tracks[this.state.currentBarsCount - 1];
     Object.entries(track).map((entrie) => {
       const value = entrie[1];
       let source;
@@ -169,16 +156,16 @@ class Sequencer extends Component {
         source.buffer = bufferLoader.bufferObjs[value[idxNote]];
         source.connect(audioContext.destination);
         source.start(time);
-        source.stop(time + (this.state.bpm / 100)); // FIXME 適当
+        source.stop(time + (this.state.bpm / 200)); // FIXME 適当
       }
       return source;
     });
     if (this.state.idxCurrent16thNote === 15) {
-      const nowbars = parseInt(window.location.hash.replace('#', ''), 10);
+      const urlHash = parseUrlHash();
       this.setState({
-        bars: nowbars === this.state.tracks.length ? 1 : nowbars + 1,
+        currentBarsCount: urlHash === this.state.tracks.length ? 1 : urlHash + 1,
       });
-      window.location.hash = this.state.bars;
+      window.location.hash = this.state.currentBarsCount;
     }
   }
 
@@ -207,7 +194,7 @@ class Sequencer extends Component {
         <div className="handsontable" id="hot" />
         <div className="pagination">
           {Array(this.state.tracks.length).fill().map((x, i) =>
-            (<a className={this.state.bars === i + 1 ? 'active' : ''} href={`#${i + 1}`} key={i} >{i + 1}</a>))}
+            (<a className={this.state.currentBarsCount === i + 1 ? 'active' : ''} href={`#${i + 1}`} key={i} >{i + 1}</a>))}
         </div>
         <div className="pagination">
           <a href={`#${this.state.tracks.length}`} onClick={() => this.addBars()}>+</a>
