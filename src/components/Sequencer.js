@@ -169,7 +169,7 @@ class Sequencer extends Component {
         source.buffer = bufferLoader.bufferObjs[value[idxNote]];
         source.connect(audioContext.destination);
         source.start(time);
-        source.stop(time + 0.3); // FIXME 適当
+        source.stop(time + (this.state.bpm / 100)); // FIXME 適当
       }
       return source;
     });
