@@ -1,20 +1,19 @@
-import React, { Component } from 'react';
+import React from 'react';
+import uuid from 'uuid';
 
-class SequenceStep extends Component {
-  render() {
-    return (
-      <div>
-        {Array(16).fill().map((x, i) =>
-          (<div
-            className={
-              (this.props.isPlaying && this.props.idxCurrent16thNote === (i + 1) % 16) ? 'step  active' : 'step'
-            }
-            key={i}
-            disabled
-          />))}
-      </div>
-    );
-  }
+function SequenceStep({ isPlaying, idxCurrent16thNote }) {
+  return (
+    <div>
+      {Array(16).fill().map((x, i) =>
+        (<div
+          className={
+            (isPlaying && idxCurrent16thNote === (i + 1) % 16) ? 'step  active' : 'step'
+          }
+          key={uuid()}
+          disabled
+        />))}
+    </div>
+  );
 }
 
 export default SequenceStep;

@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import uuid from 'uuid';
 import React, { Component } from 'react';
 import Slider from 'react-toolbox/lib/slider';
 import Button from 'react-toolbox/lib/button/Button';
@@ -12,6 +13,7 @@ import { SCHEDULER_TICK, SCHEDULER_LOOK_AHEAD, NUM_OF_INSTRUMENTS } from '../con
 import { drum, none } from '../data/tracks';
 
 // component
+import SaveDialog from './SaveDialog';
 import SequenceStep from './SequenceStep';
 
 // script
@@ -39,8 +41,8 @@ timerWorker.postMessage({ interval: SCHEDULER_TICK });
 let hot = null;
 
 class Sequencer extends Component {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
     this.state = {
       tracks: [
         [_.cloneDeep(drum), _.cloneDeep(none)],
@@ -127,7 +129,7 @@ class Sequencer extends Component {
 
   addBars() {
     const tmp = _.cloneDeep(this.state.tracks);
-    tmp.push({ drum: _.cloneDeep(none), piano: _.cloneDeep(none) });
+    tmp.push([_.cloneDeep(none), _.cloneDeep(none)]);
     hot.updateSettings({
       data: tmp,
     });
@@ -194,7 +196,7 @@ class Sequencer extends Component {
         <div className="handsontable" id="hot" />
         <div className="pagination">
           {Array(this.state.tracks.length).fill().map((x, i) =>
-            (<a className={this.state.currentBarsCount === i + 1 ? 'active' : ''} href={`#${i + 1}`} key={i} >{i + 1}</a>))}
+            (<a className={this.state.currentBarsCount === i + 1 ? 'active' : ''} href={`#${i + 1}`} key={uuid()} >{i + 1}</a>))}
         </div>
         <div className="pagination">
           <a href={`#${this.state.tracks.length}`} onClick={() => this.addBars()}>+</a>
@@ -221,6 +223,7 @@ class Sequencer extends Component {
             onChange={this.handleSliderChange.bind(this, 'swing')}
           />
           <Button raised label={this.state.isPlaying ? 'STOP' : 'PLAY'} onClick={() => this.togglePlayButton()} />
+          <SaveDialog />
         </div>
       </div>
     );
