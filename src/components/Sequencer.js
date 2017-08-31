@@ -1,5 +1,4 @@
 import _ from 'lodash';
-import uuid from 'uuid';
 import React, { Component } from 'react';
 import Slider from 'react-toolbox/lib/slider';
 import Button from 'react-toolbox/lib/button/Button';
@@ -15,6 +14,7 @@ import { drum, none } from '../data/tracks';
 // component
 import SaveDialog from './SaveDialog';
 import SequenceStep from './SequenceStep';
+import SequencePager from './SequencePager';
 
 // script
 import BufferLoader from '../scripts/bufferloader';
@@ -128,14 +128,30 @@ class Sequencer extends Component {
   }
 
   addBars() {
-    const tmp = _.cloneDeep(this.state.tracks);
-    tmp.push([_.cloneDeep(none), _.cloneDeep(none)]);
-    hot.updateSettings({
-      data: tmp,
-    });
-    this.setState({
-      tracks: tmp,
-    });
+    if (hot) {
+      const tracks = _.cloneDeep(this.state.tracks);
+      tracks.push([_.cloneDeep(none), _.cloneDeep(none)]);
+      hot.updateSettings({
+        data: tracks,
+      });
+      this.setState({
+        tracks,
+      });
+    }
+  }
+
+  removeBars(index, e) {
+    e.stopPropagation();
+    const ans = window.confirm(`remove this track[${index + 1}]?`);
+    if (ans) {
+      const tracks = _.cloneDeep(this.state.tracks);
+      _.pullAt(tracks, index);
+      window.location.hash = 1;
+      this.setState({
+        currentBarsCount: 1,
+        tracks,
+      });
+    }
   }
 
   schedule() {
@@ -194,13 +210,12 @@ class Sequencer extends Component {
           idxCurrent16thNote={this.state.idxCurrent16thNote}
         />
         <div className="handsontable" id="hot" />
-        <div className="pagination">
-          {Array(this.state.tracks.length).fill().map((x, i) =>
-            (<a className={this.state.currentBarsCount === i + 1 ? 'active' : ''} href={`#${i + 1}`} key={uuid()} >{i + 1}</a>))}
-        </div>
-        <div className="pagination">
-          <a href={`#${this.state.tracks.length}`} onClick={() => this.addBars()}>+</a>
-        </div>
+        <SequencePager
+          trackLength={this.state.tracks.length}
+          currentBarsCount={this.state.currentBarsCount}
+          addBars={this.addBars.bind(this)}
+          removeBars={this.removeBars.bind(this)}
+        />
         <div>
           <p>BPM</p>
           <Slider

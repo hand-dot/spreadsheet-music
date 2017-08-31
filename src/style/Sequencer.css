@@ -5,27 +5,3 @@
 .handsontable{
   margin-bottom: 20px;
 }
-
-.step{
-  height: 8px;
-  /*width =  100/16 */
-  width: 6.2%;
-  display:inline-flex;
-}
-
-.active {
-  transition: all 100ms 0s ease;
-  background-color: #3f51b5;
-  color:#fff
-}
-
-.pagination{
-  margin: 20px 0;
-  display: inline-block;
-}
-
-.pagination a{
-  border: 1px solid #CCC;
-  padding: 5px 15px;
-  margin: 0 10px;
-}
