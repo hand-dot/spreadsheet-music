@@ -2,32 +2,37 @@ import React, { Component } from 'react';
 import Button from 'react-toolbox/lib/button/Button';
 import Dialog from 'react-toolbox/lib/dialog/Dialog';
 
-class SaveDialog extends React.Component {
-  state = {
-    active: false
-  };
-
-  handleToggle = () => {
-    this.setState({active: !this.state.active});
+class SaveDialog extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      active: false,
+    };
+    this.actions = [
+      { label: 'Cancel', onClick: this.handleToggle.bind(this) },
+      { label: 'Save', onClick: this.handleToggle.bind(this) },
+    ];
   }
 
-  actions = [
-    { label: "Cancel", onClick: this.handleToggle },
-    { label: "Save", onClick: this.handleToggle }
-  ];
+  handleToggle() {
+    this.setState({ active: !this.state.active });
+  }
 
-  render () {
+  render() {
     return (
       <span>
-        <Button raised label='SAVE' onClick={this.handleToggle} />
+        <Button raised label="SAVE" onClick={this.handleToggle.bind(this)} />
         <Dialog
           actions={this.actions}
           active={this.state.active}
-          onEscKeyDown={this.handleToggle}
-          onOverlayClick={this.handleToggle}
-          title='My awesome dialog'
+          onEscKeyDown={this.handleToggle.bind(this)}
+          onOverlayClick={this.handleToggle.bind(this)}
+          title="My awesome dialog"
         >
-          <p>Here you can add arbitrary content. Components like Pickers are using dialogs now.</p>
+          <p>
+            Here you can add arbitrary content. Components like Pickers are
+            using dialogs now.
+          </p>
         </Dialog>
       </span>
     );
@@ -35,4 +40,3 @@ class SaveDialog extends React.Component {
 }
 
 export default SaveDialog;
-
