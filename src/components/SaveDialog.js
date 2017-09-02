@@ -22,20 +22,16 @@ class SaveDialog extends Component {
   }
 
   componentWillMount() {
-    sequencerDb.init();
+    // sequencerDb.init();
   }
 
   handleToggle() {
     this.setState({ active: !this.state.active });
   }
 
-  handleChange(name, value) {
-    this.setState({ ...this.state, [name]: value });
-  }
-
   save() {
     this.setState({ active: !this.state.active });
-    if (this.props.title === DEFAULT_TITLE && !window.confirm('The title has not been changed, is it OK?')) {
+    if (this.props.title === DEFAULT_TITLE && !window.confirm('Title has not been changed, is it OK?')) {
       return;
     }
     sequencerDb.insert(this.props);

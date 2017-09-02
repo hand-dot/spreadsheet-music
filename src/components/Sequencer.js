@@ -6,13 +6,14 @@ import Handsontable from 'handsontable';
 import 'handsontable/dist/handsontable.full.css';
 
 // constant
-import { SCHEDULER_TICK, SCHEDULER_LOOK_AHEAD, NUM_OF_INSTRUMENTS, DEFAULT_TITLE } from '../constants';
+import { SCHEDULER_TICK, SCHEDULER_LOOK_AHEAD, DEFAULT_TITLE } from '../constants';
 
 // data
 import { drum, none } from '../data/tracks';
 
 // component
 import SaveDialog from './SaveDialog';
+import LoadDialog from './LoadDialog';
 import SequenceStep from './SequenceStep';
 import SequencePager from './SequencePager';
 import SequenceSlider from './SequenceSlider';
@@ -21,11 +22,10 @@ import SequenceSlider from './SequenceSlider';
 import BufferLoader from '../scripts/bufferloader';
 import timerWorker from '../scripts/timerWorker';
 import soundObjs from '../scripts/sounds';
+import { parseUrlHash, getHotDataFromUrlHash } from '../scripts/sequencerUtil';
 
 // style
 import '../style/Sequencer.css';
-
-const parseUrlHash = () => parseInt(window.location.hash.replace('#', ''), 10) || 1;
 
 // audio context initialization
 window.AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -80,7 +80,7 @@ class Sequencer extends Component {
     const container = document.getElementById('hot');
     hot = Handsontable(container, {
       autoInsertRow: false,
-      data: self.getData(),
+      data: getHotDataFromUrlHash(this.state.tracks),
       colWidths: Math.round(window.innerWidth / 16) - (20 / 16),
       colHeaders: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
       columns: Array(16).fill({
@@ -92,18 +92,23 @@ class Sequencer extends Component {
     });
 
     Handsontable.dom.addEvent(window, 'hashchange', () => {
-      hot.loadData(self.getData());
+      hot.loadData(getHotDataFromUrlHash(this.state.tracks));
       self.setState({
         currentBarsCount: parseUrlHash(),
       });
     });
   }
-
-  getData() {
-    const page = parseUrlHash();
-    const start = (page - 1) * NUM_OF_INSTRUMENTS;
-    const end = page * NUM_OF_INSTRUMENTS;
-    return _.slice(_.flatten(this.state.tracks), start, end);
+  loadData(data) {
+    this.setState({
+      title: data.title,
+      tracks: data.tracks,
+      bpm: data.bpm,
+      swing: data.swing,
+      sustain: data.sustain,
+    });
+    hot.updateSettings({
+      data: getHotDataFromUrlHash(data.tracks),
+    });
   }
 
   handleChange(name, value) {
@@ -233,6 +238,9 @@ class Sequencer extends Component {
             bpm={this.state.bpm}
             swing={this.state.swing}
             sustain={this.state.sustain}
+          />
+          <LoadDialog
+            loadData={this.loadData.bind(this)}
           />
         </div>
       </div>
