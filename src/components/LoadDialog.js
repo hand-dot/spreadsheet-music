@@ -21,12 +21,10 @@ class SaveDialog extends Component {
   }
 
   componentWillMount() {
-    sequencerDb.init().then((result) => {
-      result.selectAll().then((results) => {
-        if (!_.isEmpty(results)) {
-          this.state.datas = results;
-        }
-      });
+    sequencerDb.selectAll().then((results) => {
+      if (!_.isEmpty(results)) {
+        this.state.datas = results;
+      }
     });
   }
 
@@ -63,6 +61,7 @@ class SaveDialog extends Component {
           <p>
             load sequence data in your browser strage.
           </p>
+          <hr />
           <ul>
             {this.state.datas.map(data =>
               (

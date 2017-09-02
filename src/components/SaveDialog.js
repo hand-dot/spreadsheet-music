@@ -21,10 +21,6 @@ class SaveDialog extends Component {
     ];
   }
 
-  componentWillMount() {
-    // sequencerDb.init();
-  }
-
   handleToggle() {
     this.setState({ active: !this.state.active });
   }

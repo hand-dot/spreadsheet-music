@@ -50,8 +50,9 @@ const sequencerDb = {
       );
       db.insert().into(table).values([row]).exec();
     } else {
-      this.init();
-      this.insert({ title, tracks, bpm, swing, sustain });
+      this.init().then((result) => {
+        result.insert({ title, tracks, bpm, swing, sustain });
+      });
     }
   },
 
@@ -66,7 +67,9 @@ const sequencerDb = {
           .exec());
       });
     }
-    return new Promise(() => []);
+    return this.init().then((result) => {
+      result.selectAll();
+    });
   },
 
 };
