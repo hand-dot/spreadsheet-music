@@ -49,7 +49,8 @@ class Sequencer extends Component {
         [_.cloneDeep(drum), _.cloneDeep(none)],
       ],
       bpm: 100,
-      swing: 0,
+      swing: 30,
+      sustain: 50,
       isPlaying: false,
       idxCurrent16thNote: 0,
       currentBarsCount: 1,
@@ -174,7 +175,7 @@ class Sequencer extends Component {
         source.buffer = bufferLoader.bufferObjs[value[idxNote]];
         source.connect(audioContext.destination);
         source.start(time);
-        source.stop(time + (this.state.bpm / 200)); // FIXME 適当
+        source.stop(time + (this.state.sustain/100));
       }
       return source;
     });
@@ -236,6 +237,16 @@ class Sequencer extends Component {
             pinned
             value={this.state.swing}
             onChange={this.handleSliderChange.bind(this, 'swing')}
+          />
+          <p>Sustain</p>
+          <Slider
+            min={20}
+            max={200}
+            step={1}
+            editable
+            pinned
+            value={this.state.sustain}
+            onChange={this.handleSliderChange.bind(this, 'sustain')}
           />
           <Button raised label={this.state.isPlaying ? 'STOP' : 'PLAY'} onClick={() => this.togglePlayButton()} />
           <SaveDialog />
