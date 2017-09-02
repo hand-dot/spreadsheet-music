@@ -1,6 +1,5 @@
 import _ from 'lodash';
 import React, { Component } from 'react';
-import Slider from 'react-toolbox/lib/slider';
 import Button from 'react-toolbox/lib/button/Button';
 import Input from 'react-toolbox/lib/input/Input';
 import Handsontable from 'handsontable';
@@ -16,6 +15,7 @@ import { drum, none } from '../data/tracks';
 import SaveDialog from './SaveDialog';
 import SequenceStep from './SequenceStep';
 import SequencePager from './SequencePager';
+import SequenceSlider from './SequenceSlider';
 
 // script
 import BufferLoader from '../scripts/bufferloader';
@@ -220,35 +220,11 @@ class Sequencer extends Component {
           removeBars={this.removeBars.bind(this)}
         />
         <div>
-          <p>BPM</p>
-          <Slider
-            min={0}
-            max={250}
-            step={1}
-            editable
-            pinned
-            value={this.state.bpm}
-            onChange={this.handleChange.bind(this, 'bpm')}
-          />
-          <p>Swing</p>
-          <Slider
-            min={0}
-            max={100}
-            step={1}
-            editable
-            pinned
-            value={this.state.swing}
-            onChange={this.handleChange.bind(this, 'swing')}
-          />
-          <p>Sustain</p>
-          <Slider
-            min={20}
-            max={200}
-            step={1}
-            editable
-            pinned
-            value={this.state.sustain}
-            onChange={this.handleChange.bind(this, 'sustain')}
+          <SequenceSlider
+            bpm={this.state.bpm}
+            swing={this.state.swing}
+            sustain={this.state.sustain}
+            handleChange={this.handleChange.bind(this)}
           />
           <Button raised label={this.state.isPlaying ? 'STOP' : 'PLAY'} onClick={() => this.togglePlayButton()} />
           <SaveDialog
