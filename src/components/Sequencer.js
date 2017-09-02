@@ -2,11 +2,12 @@ import _ from 'lodash';
 import React, { Component } from 'react';
 import Slider from 'react-toolbox/lib/slider';
 import Button from 'react-toolbox/lib/button/Button';
+import Input from 'react-toolbox/lib/input/Input';
 import Handsontable from 'handsontable';
 import 'handsontable/dist/handsontable.full.css';
 
 // constant
-import { SCHEDULER_TICK, SCHEDULER_LOOK_AHEAD, NUM_OF_INSTRUMENTS } from '../constants';
+import { SCHEDULER_TICK, SCHEDULER_LOOK_AHEAD, NUM_OF_INSTRUMENTS, DEFAULT_TITLE } from '../constants';
 
 // data
 import { drum, none } from '../data/tracks';
@@ -44,8 +45,8 @@ class Sequencer extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      title: DEFAULT_TITLE,
       tracks: [
-        [_.cloneDeep(drum), _.cloneDeep(none)],
         [_.cloneDeep(drum), _.cloneDeep(none)],
       ],
       bpm: 100,
@@ -105,10 +106,8 @@ class Sequencer extends Component {
     return _.slice(_.flatten(this.state.tracks), start, end);
   }
 
-  handleSliderChange(slider, value) {
-    const newState = {};
-    newState[slider] = value;
-    this.setState(newState);
+  handleChange(name, value) {
+    this.setState({ ...this.state, [name]: value });
   }
 
   togglePlayButton() {
@@ -175,7 +174,7 @@ class Sequencer extends Component {
         source.buffer = bufferLoader.bufferObjs[value[idxNote]];
         source.connect(audioContext.destination);
         source.start(time);
-        source.stop(time + (this.state.sustain/100));
+        source.stop(time + (this.state.sustain / 100));
       }
       return source;
     });
@@ -206,6 +205,9 @@ class Sequencer extends Component {
       <div className="sequencer">
         <h3>How to Play → <a href="https://youtu.be/FcaDeMz2H28">https://youtu.be/FcaDeMz2H28</a></h3>
         <hr />
+        <section>
+          <Input type="text" label="Title" name="title" minLength={1} maxLength={32} value={this.state.title} onChange={this.handleChange.bind(this, 'title')} />
+        </section>
         <SequenceStep
           isPlaying={this.state.isPlaying}
           idxCurrent16thNote={this.state.idxCurrent16thNote}
@@ -226,7 +228,7 @@ class Sequencer extends Component {
             editable
             pinned
             value={this.state.bpm}
-            onChange={this.handleSliderChange.bind(this, 'bpm')}
+            onChange={this.handleChange.bind(this, 'bpm')}
           />
           <p>Swing</p>
           <Slider
@@ -236,7 +238,7 @@ class Sequencer extends Component {
             editable
             pinned
             value={this.state.swing}
-            onChange={this.handleSliderChange.bind(this, 'swing')}
+            onChange={this.handleChange.bind(this, 'swing')}
           />
           <p>Sustain</p>
           <Slider
@@ -246,10 +248,16 @@ class Sequencer extends Component {
             editable
             pinned
             value={this.state.sustain}
-            onChange={this.handleSliderChange.bind(this, 'sustain')}
+            onChange={this.handleChange.bind(this, 'sustain')}
           />
           <Button raised label={this.state.isPlaying ? 'STOP' : 'PLAY'} onClick={() => this.togglePlayButton()} />
-          <SaveDialog />
+          <SaveDialog
+            title={this.state.title}
+            tracks={this.state.tracks}
+            bpm={this.state.bpm}
+            swing={this.state.swing}
+            sustain={this.state.sustain}
+          />
         </div>
       </div>
     );
