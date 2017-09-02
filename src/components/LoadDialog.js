@@ -52,7 +52,6 @@ class SaveDialog extends Component {
   render() {
     return (
       <span>
-        {this.state.datas.length}
         <Button raised label="LOAD" onClick={this.handleToggle.bind(this)} />
         <Dialog
           actions={this.actions}
