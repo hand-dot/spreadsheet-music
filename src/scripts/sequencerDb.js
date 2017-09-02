@@ -2,7 +2,6 @@ import _ from 'lodash';
 import * as lf from 'lovefield';
 
 let initedFlg = false;
-let lock = false;
 let schemaBuilder = null;
 let db = null;
 let table = null;
@@ -10,8 +9,7 @@ let table = null;
 const sequencerDb = {
   init() {
     return new Promise((resolve) => {
-      if (!initedFlg && !lock) {
-        lock = true;
+      if (!initedFlg) {
         schemaBuilder = lf.schema.create('sequencer', 1);
         schemaBuilder.createTable('sequenceDatas')
           .addColumn('id', lf.Type.INTEGER)
@@ -26,7 +24,6 @@ const sequencerDb = {
           db = connectedDb;
           table = connectedDb.getSchema().table('sequenceDatas');
           initedFlg = true;
-          lock = false;
           resolve(this);
         });
       }
