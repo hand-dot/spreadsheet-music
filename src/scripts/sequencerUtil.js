@@ -39,11 +39,6 @@ function scheduleSound(idxCurrent16thNote, nextNoteTime, tracks, currentBarsCoun
     }
     return source;
   });
-  if (idxCurrent16thNote === 15) {
-    window.location.hash = currentBarsCount;
-    const urlHash = parseUrlHash();
-    return urlHash === tracks.length ? 1 : urlHash + 1;
-  }
 }
 
 function nextNote(bpm, idxCurrent16thNote, swing, nextNoteTime) {
@@ -53,31 +48,10 @@ function nextNote(bpm, idxCurrent16thNote, swing, nextNoteTime) {
     // 1 / 1200 = 0.0008333333333333334
           ? (1 / 4) + (0.00083 * swing)
           : (1 / 4) - (0.00083 * swing);
-  return nextNoteTime + (noteRateWithSwingCalc * secondsPerBeat);
+  return {
+    nextNoteTime: nextNoteTime + (noteRateWithSwingCalc * secondsPerBeat),
+    idxCurrent16thNote: (idxCurrent16thNote + 1) % 16,
+  };
 }
 
-function schedule(nextNoteTime, idxCurrent16thNote, tracks, currentBarsCount, sustain, callback) {
-    console.log(nextNoteTime, idxCurrent16thNote, tracks, currentBarsCount, sustain, callback);
-  while (nextNoteTime < audioContext.currentTime + SCHEDULER_LOOK_AHEAD) {
-    const nextBarsCount = scheduleSound(
-      idxCurrent16thNote,
-      nextNoteTime,
-      tracks,
-      currentBarsCount,
-      sustain,
-    );
-    if (nextBarsCount) {
-      callback({
-        currentBarsCount: nextBarsCount,
-      });
-    }
-
-    const swingdNextNoteTime = nextNote();
-    callback({
-      idxCurrent16thNote: (idxCurrent16thNote + 1) % 16,
-      nextNoteTime: swingdNextNoteTime,
-    });
-  }
-}
-
-export { parseUrlHash, getHotDataFromUrlHash, schedule };
+export { audioContext, parseUrlHash, getHotDataFromUrlHash, scheduleSound, nextNote };

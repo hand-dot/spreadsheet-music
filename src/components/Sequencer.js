@@ -19,23 +19,14 @@ import SequencePager from './SequencePager';
 import SequenceSlider from './SequenceSlider';
 
 // script
-import BufferLoader from '../scripts/bufferloader';
 import timerWorker from '../scripts/timerWorker';
 import soundObjs from '../scripts/sounds';
-import { parseUrlHash, getHotDataFromUrlHash } from '../scripts/sequencerUtil';
+import { audioContext, parseUrlHash, getHotDataFromUrlHash, scheduleSound, nextNote } from '../scripts/sequencerUtil';
 
 // style
 import '../style/Sequencer.css';
 
-// audio context initialization
-window.AudioContext = window.AudioContext || window.webkitAudioContext;
-const audioContext = new AudioContext();
 
-// loadimg audio buffers
-const bufferLoader = new BufferLoader(audioContext, soundObjs, () =>
-  console.log('audio resource loading finished.'),
-);
-bufferLoader.load();
 timerWorker.postMessage({ interval: SCHEDULER_TICK });
 
 // handosontable
@@ -58,11 +49,11 @@ class Sequencer extends Component {
       startTime: 0.0,
       nextNoteTime: 0.0,
     };
-    timerWorker.onmessage = function (e) {
+    timerWorker.onmessage = (e) => {
       if (e.data === 'tick') {
         this.schedule();
       }
-    }.bind(this);
+    };
   }
 
   componentWillMount() {
@@ -161,48 +152,22 @@ class Sequencer extends Component {
 
   schedule() {
     while (this.state.nextNoteTime < audioContext.currentTime + SCHEDULER_LOOK_AHEAD) {
-      this.scheduleSound(
+      scheduleSound(
         this.state.idxCurrent16thNote,
         this.state.nextNoteTime,
+        this.state.tracks,
+        this.state.currentBarsCount,
+        this.state.sustain,
       );
-      this.nextNote();
-    }
-  }
-
-  scheduleSound(idxNote, time) {
-    const track = this.state.tracks[this.state.currentBarsCount - 1];
-    Object.entries(track).map((entrie) => {
-      const value = entrie[1];
-      let source;
-      if (value[idxNote]) {
-        source = audioContext.createBufferSource();
-        source.buffer = bufferLoader.bufferObjs[value[idxNote]];
-        source.connect(audioContext.destination);
-        source.start(time);
-        source.stop(time + (this.state.sustain / 100));
+      this.setState(nextNote(this.state.bpm, this.state.idxCurrent16thNote, this.state.swing, this.state.nextNoteTime));
+      if (this.state.idxCurrent16thNote === 15) {
+        const urlHash = parseUrlHash();
+        this.setState({
+          currentBarsCount: urlHash === this.state.tracks.length ? 1 : urlHash + 1,
+        });
+        window.location.hash = this.state.currentBarsCount;
       }
-      return source;
-    });
-    if (this.state.idxCurrent16thNote === 15) {
-      const urlHash = parseUrlHash();
-      this.setState({
-        currentBarsCount: urlHash === this.state.tracks.length ? 1 : urlHash + 1,
-      });
-      window.location.hash = this.state.currentBarsCount;
     }
-  }
-
-  nextNote() {
-    const secondsPerBeat = 60.0 / this.state.bpm;
-    const noteRateWithSwingCalc =
-      this.state.idxCurrent16thNote % 2 === 0
-      // 1 / 1200 = 0.0008333333333333334
-        ? (1 / 4) + (0.00083 * this.state.swing)
-        : (1 / 4) - (0.00083 * this.state.swing);
-    this.setState({
-      nextNoteTime: this.state.nextNoteTime + (noteRateWithSwingCalc * secondsPerBeat),
-      idxCurrent16thNote: (this.state.idxCurrent16thNote + 1) % 16,
-    });
   }
 
   render() {
