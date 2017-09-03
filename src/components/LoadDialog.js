@@ -25,15 +25,18 @@ class LoadDialog extends Component {
 
   componentWillMount() {
     sequencerDb.selectAll().then((results) => {
-      this.state.datas = results;
+      this.setState({
+        datas: results,
+      });
     });
   }
 
   handleToggle() {
-    const self = this;
     sequencerDb.selectAll().then((results) => {
-      self.state.datas = results;
-      self.setState({ active: !self.state.active });
+      this.setState({
+        active: !this.state.active,
+        datas: results,
+      });
     });
   }
 
@@ -49,8 +52,10 @@ class LoadDialog extends Component {
     const self = this;
     sequencerDb.deleteById(data.id).then(() => {
       sequencerDb.selectAll().then((results) => {
-        self.state.datas = results;
-        self.setState({ active: true });
+        self.setState({
+          active: !self.state.active,
+          datas: results,
+        });
       });
     });
   }

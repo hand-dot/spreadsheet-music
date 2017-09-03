@@ -76,18 +76,19 @@ const sequencerDb = {
   },
 
   selectAll() {
-    if (this.isInited()) {
-      return new Promise((resolve) => {
+    return new Promise((resolve) => {
+      if (this.isInited()) {
         resolve(db
           .select()
           .from(table)
           .limit(100)
           .orderBy(table.id, lf.Order.DESC)
           .exec());
-      });
-    }
-    return this.init().then((result) => {
-      result.selectAll();
+      } else {
+        this.init().then((result) => {
+          result.selectAll();
+        });
+      }
     });
   },
 
