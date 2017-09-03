@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { NUM_OF_INSTRUMENTS, SCHEDULER_LOOK_AHEAD } from '../constants';
+import { NUM_OF_INSTRUMENTS } from '../constants';
 
 // script
 import BufferLoader from '../scripts/bufferloader';
@@ -26,7 +26,7 @@ function getHotDataFromUrlHash(tracks) {
   return _.slice(_.flatten(tracks), start, end);
 }
 
-function scheduleSound(idxCurrent16thNote, nextNoteTime, tracks, currentBarsCount, sustain) {
+function scheduleSound({ idxCurrent16thNote, nextNoteTime, tracks, currentBarsCount, sustain }) {
   Object.entries(tracks[currentBarsCount - 1]).map((entrie) => {
     const value = entrie[1];
     let source;
@@ -41,7 +41,7 @@ function scheduleSound(idxCurrent16thNote, nextNoteTime, tracks, currentBarsCoun
   });
 }
 
-function nextNote(bpm, idxCurrent16thNote, swing, nextNoteTime) {
+function nextNote({ bpm, idxCurrent16thNote, swing, nextNoteTime }) {
   const secondsPerBeat = 60.0 / bpm;
   const noteRateWithSwingCalc =
         idxCurrent16thNote % 2 === 0

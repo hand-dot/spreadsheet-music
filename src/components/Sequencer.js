@@ -46,7 +46,6 @@ class Sequencer extends Component {
       isPlaying: false,
       idxCurrent16thNote: 0,
       currentBarsCount: 1,
-      startTime: 0.0,
       nextNoteTime: 0.0,
     };
     timerWorker.onmessage = (e) => {
@@ -61,7 +60,6 @@ class Sequencer extends Component {
   }
 
   componentDidMount() {
-    const self = this;
     const autocompleteSource = [];
     Object.entries(soundObjs).map((entrie) => {
       autocompleteSource.push(entrie[0]);
@@ -84,7 +82,7 @@ class Sequencer extends Component {
 
     Handsontable.dom.addEvent(window, 'hashchange', () => {
       hot.loadData(getHotDataFromUrlHash(this.state.tracks));
-      self.setState({
+      this.setState({
         currentBarsCount: parseUrlHash(),
       });
     });
@@ -152,21 +150,18 @@ class Sequencer extends Component {
 
   schedule() {
     while (this.state.nextNoteTime < audioContext.currentTime + SCHEDULER_LOOK_AHEAD) {
-      scheduleSound(
-        this.state.idxCurrent16thNote,
-        this.state.nextNoteTime,
-        this.state.tracks,
-        this.state.currentBarsCount,
-        this.state.sustain,
-      );
-      this.setState(nextNote(this.state.bpm, this.state.idxCurrent16thNote, this.state.swing, this.state.nextNoteTime));
       if (this.state.idxCurrent16thNote === 15) {
-        const urlHash = parseUrlHash();
-        this.setState({
-          currentBarsCount: urlHash === this.state.tracks.length ? 1 : urlHash + 1,
-        });
-        window.location.hash = this.state.currentBarsCount;
+        setTimeout(() => {
+          const urlHash = parseUrlHash();
+          const newBarsCount = urlHash === this.state.tracks.length ? 1 : urlHash + 1;
+          this.setState({
+            currentBarsCount: newBarsCount,
+          });
+          window.location.hash = newBarsCount;
+        }, SCHEDULER_LOOK_AHEAD);
       }
+      scheduleSound(this.state);
+      this.setState(nextNote(this.state));
     }
   }
 
