@@ -29,6 +29,7 @@ const sequencerDb = {
       }
     });
   },
+
   isInited() {
     return initedFlg && !_.isNull(db) && !_.isNull(table);
   },
@@ -53,13 +54,32 @@ const sequencerDb = {
     }
   },
 
+  deleteById(id) {
+    return new Promise((resolve) => {
+      if (this.isInited()) {
+        db
+          .delete()
+          .from(table)
+          .where(table.id.eq(id))
+          .exec()
+          .then((result) => {
+            resolve(result);
+          });
+      } else {
+        this.init().then((result) => {
+          result.deleteById(id);
+        });
+      }
+    });
+  },
+
   selectAll() {
     if (this.isInited()) {
       return new Promise((resolve) => {
         resolve(db
           .select()
           .from(table)
-          .limit(20)
+          .limit(100)
           .orderBy(table.id, lf.Order.DESC)
           .exec());
       });

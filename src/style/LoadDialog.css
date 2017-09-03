@@ -1,0 +1,21 @@
+.loadDialog{
+  overflow: auto !important;
+}
+
+.loadDialogList{
+  margin-top: 20px;
+}
+
+.loadDialogList li {
+  padding: 10px 0;
+  border-bottom: 1px solid;
+}
+
+.loadDialogList li h4{
+  font-weight: bold;
+}
+
+.loadDialogList li p {
+  font-size: 9px;
+  margin-right: 10px;
+}

@@ -8,7 +8,10 @@ import Dialog from 'react-toolbox/lib/dialog/Dialog';
 // indexDb
 import sequencerDb from '../scripts/sequencerDb';
 
-class SaveDialog extends Component {
+// style
+import '../style/LoadDialog.css';
+
+class LoadDialog extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -22,18 +25,14 @@ class SaveDialog extends Component {
 
   componentWillMount() {
     sequencerDb.selectAll().then((results) => {
-      if (!_.isEmpty(results)) {
-        this.state.datas = results;
-      }
+      this.state.datas = results;
     });
   }
 
   handleToggle() {
     const self = this;
     sequencerDb.selectAll().then((results) => {
-      if (!_.isEmpty(results)) {
-        self.state.datas = results;
-      }
+      self.state.datas = results;
       self.setState({ active: !self.state.active });
     });
   }
@@ -44,7 +43,13 @@ class SaveDialog extends Component {
   }
 
   removeData(data) {
-    console.log(data.id);
+    const self = this;
+    sequencerDb.deleteById(data.id).then(() => {
+      sequencerDb.selectAll().then((results) => {
+        self.state.datas = results;
+        self.setState({ active: true });
+      });
+    });
   }
 
   render() {
@@ -52,6 +57,7 @@ class SaveDialog extends Component {
       <span>
         <Button raised label="LOAD" onClick={this.handleToggle.bind(this)} />
         <Dialog
+          className="loadDialog"
           actions={this.actions}
           active={this.state.active}
           onEscKeyDown={this.handleToggle.bind(this)}
@@ -59,17 +65,19 @@ class SaveDialog extends Component {
           title="Load SequenceData"
         >
           <p>
-            load sequence data in your browser strage.
+            load sequence data in your browser strage.(max 100 data)
           </p>
           <hr />
-          <ul>
+          <ul className="loadDialogList">
             {this.state.datas.map(data =>
               (
                 <li key={uuid()}>
-                  <p>{data.title} / {data.createdAt.toString()}
+                  <div>
+                    <h4>■{data.title}</h4>
+                    <p>{data.createdAt.toString()}</p>
                     <button onClick={() => this.loadData(data)}>LOAD</button>
                     <button onClick={() => this.removeData(data)}>REMOVE</button>
-                  </p>
+                  </div>
                 </li>
               ),
             )}
@@ -80,11 +88,11 @@ class SaveDialog extends Component {
   }
 }
 
-SaveDialog.propTypes = {
+LoadDialog.propTypes = {
   loadData: PropTypes.func,
 };
 
-SaveDialog.defaultProps = {
+LoadDialog.defaultProps = {
   loadData: null,
 };
-export default SaveDialog;
+export default LoadDialog;

@@ -2,9 +2,12 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Slider from 'react-toolbox/lib/slider';
 
+// style
+import '../style/SequenceSlider.css';
+
 function SequenceSlider({ bpm, swing, sustain, handleChange }) {
   return (
-    <section>
+    <section className="sequenceSlider">
       <p>BPM</p>
       <Slider
         min={0}
