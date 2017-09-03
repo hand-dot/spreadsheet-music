@@ -35,23 +35,25 @@ const sequencerDb = {
   },
 
   insert({ title, tracks, bpm, swing, sustain }) {
-    if (this.isInited()) {
-      const row = table.createRow(
-        {
-          title,
-          tracks,
-          bpm,
-          swing,
-          sustain,
-          createdAt: new Date(),
-        },
-      );
-      db.insert().into(table).values([row]).exec();
-    } else {
-      this.init().then((result) => {
-        result.insert({ title, tracks, bpm, swing, sustain });
-      });
-    }
+    return new Promise((resolve) => {
+      if (this.isInited()) {
+        const row = table.createRow(
+          {
+            title,
+            tracks,
+            bpm,
+            swing,
+            sustain,
+            createdAt: new Date(),
+          },
+        );
+        resolve(db.insert().into(table).values([row]).exec());
+      } else {
+        this.init().then((result) => {
+          result.insert({ title, tracks, bpm, swing, sustain });
+        });
+      }
+    });
   },
 
   deleteById(id) {

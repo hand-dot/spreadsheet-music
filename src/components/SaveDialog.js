@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import Button from 'react-toolbox/lib/button/Button';
-import Dialog from 'react-toolbox/lib/dialog/Dialog';
 
 // indexDb
 import sequencerDb from '../scripts/sequencerDb';
@@ -10,44 +9,22 @@ import sequencerDb from '../scripts/sequencerDb';
 import { DEFAULT_TITLE } from '../constants';
 
 class SaveDialog extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      active: false,
-    };
-    this.actions = [
-      { label: 'Cancel', onClick: this.handleToggle.bind(this) },
-      { label: 'Save', onClick: this.save.bind(this) },
-    ];
-  }
-
-  handleToggle() {
-    this.setState({ active: !this.state.active });
-  }
-
   save() {
-    this.setState({ active: !this.state.active });
-    if (this.props.title === DEFAULT_TITLE && !window.confirm('Title has not been changed, is it OK?')) {
+    if (!window.confirm('save this sequence data?')) {
       return;
     }
-    sequencerDb.insert(this.props);
+    if (this.props.title === DEFAULT_TITLE && !window.confirm('title has not been changed, is it OK?')) {
+      return;
+    }
+    sequencerDb.insert(this.props).then(() => {
+      window.alert('saved!');
+    });
   }
 
   render() {
     return (
       <span>
-        <Button raised label="SAVE" onClick={this.handleToggle.bind(this)} />
-        <Dialog
-          actions={this.actions}
-          active={this.state.active}
-          onEscKeyDown={this.handleToggle.bind(this)}
-          onOverlayClick={this.handleToggle.bind(this)}
-          title="Save SequenceData"
-        >
-          <p>
-            this sequence data can save your browser strage.
-          </p>
-        </Dialog>
+        <Button raised label="SAVE" onClick={this.save.bind(this)} />
       </span>
     );
   }

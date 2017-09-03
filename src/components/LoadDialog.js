@@ -43,6 +43,9 @@ class LoadDialog extends Component {
   }
 
   removeData(data) {
+    if (!window.confirm('remove this sequence data?')) {
+      return;
+    }
     const self = this;
     sequencerDb.deleteById(data.id).then(() => {
       sequencerDb.selectAll().then((results) => {
