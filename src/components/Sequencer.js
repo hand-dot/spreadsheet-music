@@ -2,6 +2,7 @@ import _ from 'lodash';
 import React, { Component } from 'react';
 import Button from 'react-toolbox/lib/button/Button';
 import Input from 'react-toolbox/lib/input/Input';
+import Checkbox from 'react-toolbox/lib/checkbox/Checkbox';
 import Handsontable from 'handsontable';
 import 'handsontable/dist/handsontable.full.css';
 
@@ -40,6 +41,7 @@ class Sequencer extends Component {
       tracks: [
         [_.cloneDeep(drum), _.cloneDeep(none)],
       ],
+      muteButtons: [false, false],
       bpm: 100,
       swing: 30,
       sustain: 50,
@@ -68,8 +70,11 @@ class Sequencer extends Component {
 
     const container = document.getElementById('hot');
     hot = Handsontable(container, {
-      autoInsertRow: false,
       data: getHotDataFromUrlHash(this.state.tracks),
+      fillHandle: { // enable plugin in vertical direction and with autoInsertRow as false
+        autoInsertRow: false,
+        direction: 'horizontal', // 'vertical' or 'horizontal'
+      },
       colWidths: Math.round(window.innerWidth / 16) - (20 / 16),
       colHeaders: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
       columns: Array(16).fill({
@@ -102,6 +107,12 @@ class Sequencer extends Component {
 
   handleChange(name, value) {
     this.setState({ ...this.state, [name]: value });
+  }
+
+  handleChangeArr(name, index, value) {
+    const arr = _.clone(this.state[name]);
+    arr[index] = value;
+    this.setState({ ...this.state, [name]: arr });
   }
 
   togglePlayButton() {
@@ -172,6 +183,16 @@ class Sequencer extends Component {
         <hr />
         <section>
           <Input type="text" label="Title" name="title" minLength={1} maxLength={32} value={this.state.title} onChange={this.handleChange.bind(this, 'title')} />
+        </section>
+        <section className="muteButton">
+          <p>Mute</p>
+          {Array(this.state.muteButtons.length).fill().map((muteButton, i) =>
+            (<Checkbox
+              checked={this.state.muteButtons[i]}
+              label="Drum"
+              onChange={this.handleChangeArr.bind(this, 'muteButtons', i)}
+            />
+            ))}
         </section>
         <SequenceStep
           isPlaying={this.state.isPlaying}

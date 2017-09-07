@@ -1,5 +1,4 @@
 import _ from 'lodash';
-import { NUM_OF_INSTRUMENTS } from '../constants';
 
 // script
 import BufferLoader from '../scripts/bufferloader';
@@ -21,23 +20,22 @@ function parseUrlHash() {
 
 function getHotDataFromUrlHash(tracks) {
   const page = parseUrlHash();
-  const start = (page - 1) * NUM_OF_INSTRUMENTS;
-  const end = page * NUM_OF_INSTRUMENTS;
+  const numOfInstruments = tracks[0].length;
+  const start = (page - 1) * numOfInstruments;
+  const end = page * numOfInstruments;
   return _.slice(_.flatten(tracks), start, end);
 }
 
-function scheduleSound({ idxCurrent16thNote, nextNoteTime, tracks, currentBarsCount, sustain }) {
-  Object.entries(tracks[currentBarsCount - 1]).map((entrie) => {
-    const value = entrie[1];
+function scheduleSound({ idxCurrent16thNote, nextNoteTime, tracks, currentBarsCount, sustain, muteButtons }) {
+  tracks[currentBarsCount - 1].forEach((value, i) => {
     let source;
-    if (value[idxCurrent16thNote]) {
+    if (value[idxCurrent16thNote] && !muteButtons[i]) {
       source = audioContext.createBufferSource();
       source.buffer = bufferLoader.bufferObjs[value[idxCurrent16thNote]];
       source.connect(audioContext.destination);
       source.start(nextNoteTime);
       source.stop(nextNoteTime + (sustain / 100));
     }
-    return source;
   });
 }
 

@@ -5,3 +5,8 @@
 .handsontable{
   margin-bottom: 20px;
 }
+
+.muteButton label{
+  display: inline-block;
+  margin: 10px;
+}
