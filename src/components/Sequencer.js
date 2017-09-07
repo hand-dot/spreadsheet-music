@@ -186,7 +186,7 @@ class Sequencer extends Component {
         </section>
         <section className="muteButton">
           <p>Mute</p>
-          {Array(this.state.muteButtons.length).fill().map((muteButton, i) =>
+          {this.state.muteButtons.forEach((muteButton, i) =>
             (<Checkbox
               checked={this.state.muteButtons[i]}
               label="Drum"
