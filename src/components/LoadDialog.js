@@ -32,6 +32,7 @@ class LoadDialog extends Component {
   }
 
   handleToggle() {
+    this.props.stopSequencer();
     sequencerDb.selectAll().then((results) => {
       this.setState({
         active: !this.state.active,
@@ -53,7 +54,6 @@ class LoadDialog extends Component {
     sequencerDb.deleteById(data.id).then(() => {
       sequencerDb.selectAll().then((results) => {
         self.setState({
-          active: !self.state.active,
           datas: results,
         });
       });
@@ -98,9 +98,11 @@ class LoadDialog extends Component {
 
 LoadDialog.propTypes = {
   loadData: PropTypes.func,
+  stopSequencer: PropTypes.func,
 };
 
 LoadDialog.defaultProps = {
   loadData: null,
+  stopSequencer: null,
 };
 export default LoadDialog;

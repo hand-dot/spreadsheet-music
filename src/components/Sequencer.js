@@ -85,26 +85,33 @@ class Sequencer extends Component {
   }
 
   handleChangeArr(name, index, value) {
-    console.log(name, index, value);
     const arr = _.clone(this.state[name]);
     arr[index] = value;
     this.setState({ ...this.state, [name]: arr });
   }
 
+  play() {
+    timerWorker.postMessage('start');
+    this.setState({
+      // to avoid first note delay
+      nextNoteTime: audioContext.currentTime + (SCHEDULER_TICK / 1000),
+      isPlaying: true,
+    });
+  }
+
+  stop() {
+    timerWorker.postMessage('stop');
+    this.setState({
+      idxCurrent16thNote: 0,
+      isPlaying: false,
+    });
+  }
+
   togglePlayButton() {
     if (this.state.isPlaying) {
-      timerWorker.postMessage('stop');
-      this.setState({
-        idxCurrent16thNote: 0,
-        isPlaying: false,
-      });
+      this.stop();
     } else {
-      timerWorker.postMessage('start');
-      this.setState({
-        // to avoid first note delay
-        nextNoteTime: audioContext.currentTime + (SCHEDULER_TICK / 1000),
-        isPlaying: true,
-      });
+      this.play();
     }
   }
 
@@ -179,40 +186,28 @@ class Sequencer extends Component {
               ref={(ref) => { this.hot = ref; }}
               settings={{
                 data: getHotDataFromUrlHash(this.state.tracks),
-                fillHandle: { // enable plugin in vertical direction and with autoInsertRow as false
+                fillHandle: {
                   autoInsertRow: false,
-                  direction: 'horizontal', // 'vertical' or 'horizontal'
+                  direction: 'horizontal',
                 },
                 colWidths: Math.round(window.innerWidth / 17),
                 colHeaders: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
                 cells(row) {
-                  let cellProperties = {};
+                  let notes = null;
                   const visualRowIndex = this.instance.toVisualRow(row);
                   if (visualRowIndex === 0) {
-                    cellProperties = {
-                      type: 'autocomplete',
-                      source: Object.entries(drumNotes).map(entrie => entrie[0]),
-                      strict: true,
-                      allowInvalid: false,
-                    };
+                    notes = drumNotes;
+                  } else if (visualRowIndex === 1) {
+                    notes = pianoNotes;
+                  } else if (visualRowIndex === 2) {
+                    notes = bassNotes;
                   }
-                  if (visualRowIndex === 1) {
-                    cellProperties = {
-                      type: 'autocomplete',
-                      source: Object.entries(pianoNotes).map(entrie => entrie[0]),
-                      strict: true,
-                      allowInvalid: false,
-                    };
-                  }
-                  if (visualRowIndex === 2) {
-                    cellProperties = {
-                      type: 'autocomplete',
-                      source: Object.entries(bassNotes).map(entrie => entrie[0]),
-                      strict: true,
-                      allowInvalid: false,
-                    };
-                  }
-                  return cellProperties;
+                  return {
+                    type: 'autocomplete',
+                    source: Object.entries(notes).map(entrie => entrie[0]),
+                    strict: true,
+                    allowInvalid: false,
+                  };
                 },
                 rowHeaders(index) {
                   return self.state.tracksLabel[index];
@@ -244,6 +239,7 @@ class Sequencer extends Component {
           />
           <LoadDialog
             loadData={this.loadData.bind(this)}
+            stopSequencer={this.stop.bind(this)}
           />
         </div>
       </div>
