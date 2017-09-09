@@ -1,20 +1,16 @@
 .sequencer{
   margin: 20px 0;
-  display: flex;
 }
 
 .handsontable{
-  flex: 1;
 }
 
 .muteButton{
-  width: 20px;
-  margin-top: 13px;
 }
 .muteButton label{
-  margin: 5px 0;
+  display: inline-block;
+  margin: 10px;
 }
-
 .controller{
   display: block;
   width: 100%;

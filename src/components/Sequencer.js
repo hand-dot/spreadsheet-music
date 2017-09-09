@@ -1,10 +1,11 @@
 import _ from 'lodash';
 import React, { Component } from 'react';
+import ReactDOMServer from 'react-dom/server';
 import Button from 'react-toolbox/lib/button/Button';
 import Input from 'react-toolbox/lib/input/Input';
 import Checkbox from 'react-toolbox/lib/checkbox/Checkbox';
+import ReactHandsontable from 'react-handsontable';
 import Handsontable from 'handsontable';
-import 'handsontable/dist/handsontable.full.css';
 
 // constant
 import { SCHEDULER_TICK, SCHEDULER_LOOK_AHEAD, DEFAULT_TITLE } from '../constants';
@@ -28,17 +29,14 @@ import { audioContext, parseUrlHash, getHotDataFromUrlHash, scheduleSound, nextN
 // style
 import '../style/Sequencer.css';
 
-
 timerWorker.postMessage({ interval: SCHEDULER_TICK });
-
-// handosontable
-let hot = null;
 
 class Sequencer extends Component {
   constructor(props) {
     super(props);
     this.state = {
       title: DEFAULT_TITLE,
+      tracksLabel: ['Drum', 'Paino'],
       tracks: [
         [_.cloneDeep(drum), _.cloneDeep(none)],
       ],
@@ -63,39 +61,9 @@ class Sequencer extends Component {
   }
 
   componentDidMount() {
-    hot = new Handsontable(document.getElementById('hot'), {
-      data: getHotDataFromUrlHash(this.state.tracks),
-      fillHandle: { // enable plugin in vertical direction and with autoInsertRow as false
-        autoInsertRow: false,
-        direction: 'horizontal', // 'vertical' or 'horizontal'
-      },
-      colWidths: Math.round(window.innerWidth / 16) - (20 / 16),
-      colHeaders: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
-      cells(row) {
-        let cellProperties = {};
-        const visualRowIndex = this.instance.toVisualRow(row);
-        if (visualRowIndex === 0) {
-          cellProperties = {
-            type: 'autocomplete',
-            source: Object.entries(drumNotes).map(entrie => entrie[0]),
-            strict: true,
-            allowInvalid: false,
-          };
-        }
-        if (visualRowIndex === 1) {
-          cellProperties = {
-            type: 'autocomplete',
-            source: Object.entries(pianoNotes).map(entrie => entrie[0]),
-            strict: true,
-            allowInvalid: false,
-          };
-        }
-        return cellProperties;
-      },
-    });
-
     Handsontable.dom.addEvent(window, 'hashchange', () => {
-      hot.loadData(getHotDataFromUrlHash(this.state.tracks));
+
+      this.hot.hotInstance.loadData(getHotDataFromUrlHash(this.state.tracks));
       this.setState({
         currentBarsCount: parseUrlHash(),
       });
@@ -109,7 +77,7 @@ class Sequencer extends Component {
       swing: data.swing,
       sustain: data.sustain,
     });
-    hot.updateSettings({
+    this.hot.hotInstance.updateSettings({
       data: getHotDataFromUrlHash(data.tracks),
     });
   }
@@ -119,39 +87,38 @@ class Sequencer extends Component {
   }
 
   handleChangeArr(name, index, value) {
+    console.log(name, index, value);
     const arr = _.clone(this.state[name]);
     arr[index] = value;
     this.setState({ ...this.state, [name]: arr });
   }
 
   togglePlayButton() {
-    if (this.state.isPlaying === false) {
+    if (this.state.isPlaying) {
+      timerWorker.postMessage('stop');
+      this.setState({
+        idxCurrent16thNote: 0,
+        isPlaying: false,
+      });
+    } else {
       timerWorker.postMessage('start');
       this.setState({
         // to avoid first note delay
         nextNoteTime: audioContext.currentTime + (SCHEDULER_TICK / 1000),
         isPlaying: true,
       });
-    } else {
-      timerWorker.postMessage('stop');
-      this.setState({
-        idxCurrent16thNote: 0,
-        isPlaying: false,
-      });
     }
   }
 
   addBars() {
-    if (hot) {
-      const tracks = _.cloneDeep(this.state.tracks);
-      tracks.push([_.cloneDeep(none), _.cloneDeep(none)]);
-      hot.updateSettings({
-        data: tracks,
-      });
-      this.setState({
-        tracks,
-      });
-    }
+    const tracks = _.cloneDeep(this.state.tracks);
+    tracks.push([_.cloneDeep(none), _.cloneDeep(none)]);
+    this.hot.hotInstance.updateSettings({
+      data: tracks,
+    });
+    this.setState({
+      tracks,
+    });
   }
 
   removeBars(index, e) {
@@ -186,6 +153,7 @@ class Sequencer extends Component {
   }
 
   render() {
+    const self = this;
     return (
       <div>
         <h3>How to Play → <a href="https://youtu.be/FcaDeMz2H28">https://youtu.be/FcaDeMz2H28</a></h3>
@@ -195,11 +163,12 @@ class Sequencer extends Component {
         </section>
         <div className="sequencer">
           <section className="muteButton">
-            {this.state.soundOn.map((on, i) =>
+            {this.state.soundOn.map((on, index) =>
               (<Checkbox
-                checked={this.state.soundOn[i]}
-                onChange={this.handleChangeArr.bind(this, 'soundOn', i)}
-                key={(i / 2)}
+                checked={this.state.soundOn[index]}
+                onChange={this.handleChangeArr.bind(this, 'soundOn', index)}
+                label={this.state.tracksLabel[index]}
+                key={this.state.tracksLabel[index]}
               />))}
           </section>
           <section className="handsontable">
@@ -207,7 +176,43 @@ class Sequencer extends Component {
               isPlaying={this.state.isPlaying}
               idxCurrent16thNote={this.state.idxCurrent16thNote}
             />
-            <div id="hot" />
+            <ReactHandsontable
+              root="hot"
+              ref={(ref) => { this.hot = ref; }}
+              settings={{
+                data: getHotDataFromUrlHash(this.state.tracks),
+                fillHandle: { // enable plugin in vertical direction and with autoInsertRow as false
+                  autoInsertRow: false,
+                  direction: 'horizontal', // 'vertical' or 'horizontal'
+                },
+                colWidths: Math.round(window.innerWidth / 17),
+                colHeaders: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
+                cells(row) {
+                  let cellProperties = {};
+                  const visualRowIndex = this.instance.toVisualRow(row);
+                  if (visualRowIndex === 0) {
+                    cellProperties = {
+                      type: 'autocomplete',
+                      source: Object.entries(drumNotes).map(entrie => entrie[0]),
+                      strict: true,
+                      allowInvalid: false,
+                    };
+                  }
+                  if (visualRowIndex === 1) {
+                    cellProperties = {
+                      type: 'autocomplete',
+                      source: Object.entries(pianoNotes).map(entrie => entrie[0]),
+                      strict: true,
+                      allowInvalid: false,
+                    };
+                  }
+                  return cellProperties;
+                },
+                rowHeaders(index) {
+                  return self.state.tracksLabel[index];
+                },
+              }}
+            />
             <SequencePager
               trackLength={this.state.tracks.length}
               currentBarsCount={this.state.currentBarsCount}

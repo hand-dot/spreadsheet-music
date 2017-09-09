@@ -1,12 +1,12 @@
 .sequenceStep{
-  margin-top:-20px;
+  margin-left: 50px;
   width: 100%;  
   display: block;  
 }
 .step {
   height: 8px;
   /*width =  100/16 */
-  width: 6.2%;
+  width: 6%;
   display: inline-flex;
 }
 
