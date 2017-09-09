@@ -1,3 +1,8 @@
+.sequenceStep{
+  margin-top:-20px;
+  width: 100%;  
+  display: block;  
+}
 .step {
   height: 8px;
   /*width =  100/16 */

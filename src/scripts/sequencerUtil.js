@@ -26,10 +26,10 @@ function getHotDataFromUrlHash(tracks) {
   return _.slice(_.flatten(tracks), start, end);
 }
 
-function scheduleSound({ idxCurrent16thNote, nextNoteTime, tracks, currentBarsCount, sustain, muteButtons }) {
+function scheduleSound({ idxCurrent16thNote, nextNoteTime, tracks, currentBarsCount, sustain, soundOn }) {
   tracks[currentBarsCount - 1].forEach((value, i) => {
     let source;
-    if (value[idxCurrent16thNote] && !muteButtons[i]) {
+    if (value[idxCurrent16thNote] && soundOn[i]) {
       source = audioContext.createBufferSource();
       source.buffer = bufferLoader.bufferObjs[value[idxCurrent16thNote]];
       source.connect(audioContext.destination);

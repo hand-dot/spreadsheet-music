@@ -29,6 +29,39 @@ import Gbm from '../resource/sounds/chord/Gbm.mp3';
 import G from '../resource/sounds/chord/G.mp3';
 import Gm from '../resource/sounds/chord/Gm.mp3';
 
+export const drumNotes = {
+  OpenHihat,
+  CloseHihat,
+  Snare,
+  Kick,
+};
+
+export const pianoNotes = {
+  Ab,
+  Abm,
+  A,
+  Am,
+  Bb,
+  Bbm,
+  B,
+  Bm,
+  C,
+  Cm,
+  Db,
+  Dbm,
+  D,
+  Dm,
+  Eb,
+  Ebm,
+  E,
+  Em,
+  F,
+  Fm,
+  Gb,
+  Gbm,
+  G,
+  Gm,
+};
 
 export default {
   OpenHihat,

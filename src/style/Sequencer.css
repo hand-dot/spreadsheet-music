@@ -1,12 +1,21 @@
-.sequencer h3{
-  margin:0 0 10px;
+.sequencer{
+  margin: 20px 0;
+  display: flex;
 }
 
 .handsontable{
-  margin-bottom: 20px;
+  flex: 1;
 }
 
+.muteButton{
+  width: 20px;
+  margin-top: 13px;
+}
 .muteButton label{
-  display: inline-block;
-  margin: 10px;
+  margin: 5px 0;
+}
+
+.controller{
+  display: block;
+  width: 100%;
 }

@@ -7,7 +7,7 @@ import '../style/SequenceStep.css';
 
 function SequenceStep({ isPlaying, idxCurrent16thNote }) {
   return (
-    <div>
+    <div className="sequenceStep">
       {Array(16).fill().map((x, i) =>
         (<div
           className={

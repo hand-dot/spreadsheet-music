@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import React, { Component } from 'react';
+import ReactDOM from 'react-dom';
 import Button from 'react-toolbox/lib/button/Button';
 import Input from 'react-toolbox/lib/input/Input';
 import Checkbox from 'react-toolbox/lib/checkbox/Checkbox';
@@ -21,7 +22,8 @@ import SequenceSlider from './SequenceSlider';
 
 // script
 import timerWorker from '../scripts/timerWorker';
-import soundObjs from '../scripts/sounds';
+import { drumNotes, pianoNotes } from '../scripts/sounds';
+
 import { audioContext, parseUrlHash, getHotDataFromUrlHash, scheduleSound, nextNote } from '../scripts/sequencerUtil';
 
 // style
@@ -41,7 +43,7 @@ class Sequencer extends Component {
       tracks: [
         [_.cloneDeep(drum), _.cloneDeep(none)],
       ],
-      muteButtons: [false, false],
+      soundOn: [true, true],
       bpm: 100,
       swing: 30,
       sustain: 50,
@@ -62,14 +64,8 @@ class Sequencer extends Component {
   }
 
   componentDidMount() {
-    const autocompleteSource = [];
-    Object.entries(soundObjs).map((entrie) => {
-      autocompleteSource.push(entrie[0]);
-      return entrie;
-    });
-
-    const container = document.getElementById('hot');
-    hot = Handsontable(container, {
+    const self = this;
+    hot = new Handsontable(document.getElementById('hot'), {
       data: getHotDataFromUrlHash(this.state.tracks),
       fillHandle: { // enable plugin in vertical direction and with autoInsertRow as false
         autoInsertRow: false,
@@ -77,12 +73,27 @@ class Sequencer extends Component {
       },
       colWidths: Math.round(window.innerWidth / 16) - (20 / 16),
       colHeaders: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
-      columns: Array(16).fill({
-        type: 'autocomplete',
-        source: autocompleteSource,
-        strict: true,
-        allowInvalid: false,
-      }),
+      cells(row) {
+        let cellProperties = {};
+        const visualRowIndex = this.instance.toVisualRow(row);
+        if (visualRowIndex === 0) {
+          cellProperties = {
+            type: 'autocomplete',
+            source: Object.entries(drumNotes).map(entrie => entrie[0]),
+            strict: true,
+            allowInvalid: false,
+          };
+        }
+        if (visualRowIndex === 1) {
+          cellProperties = {
+            type: 'autocomplete',
+            source: Object.entries(pianoNotes).map(entrie => entrie[0]),
+            strict: true,
+            allowInvalid: false,
+          };
+        }
+        return cellProperties;
+      },
     });
 
     Handsontable.dom.addEvent(window, 'hashchange', () => {
@@ -178,34 +189,36 @@ class Sequencer extends Component {
 
   render() {
     return (
-      <div className="sequencer">
+      <div>
         <h3>How to Play → <a href="https://youtu.be/FcaDeMz2H28">https://youtu.be/FcaDeMz2H28</a></h3>
         <hr />
         <section>
           <Input type="text" label="Title" name="title" minLength={1} maxLength={32} value={this.state.title} onChange={this.handleChange.bind(this, 'title')} />
         </section>
-        <section className="muteButton">
-          <p>Mute</p>
-          {this.state.muteButtons.forEach((muteButton, i) =>
-            (<Checkbox
-              checked={this.state.muteButtons[i]}
-              label="Drum"
-              onChange={this.handleChangeArr.bind(this, 'muteButtons', i)}
+        <div className="sequencer">
+          <section className="muteButton">
+            {this.state.soundOn.map((on, i) =>
+              (<Checkbox
+                checked={this.state.soundOn[i]}
+                onChange={this.handleChangeArr.bind(this, 'soundOn', i)}
+                key={(i / 2)}
+              />))}
+          </section>
+          <section className="handsontable">
+            <SequenceStep
+              isPlaying={this.state.isPlaying}
+              idxCurrent16thNote={this.state.idxCurrent16thNote}
             />
-            ))}
-        </section>
-        <SequenceStep
-          isPlaying={this.state.isPlaying}
-          idxCurrent16thNote={this.state.idxCurrent16thNote}
-        />
-        <div className="handsontable" id="hot" />
-        <SequencePager
-          trackLength={this.state.tracks.length}
-          currentBarsCount={this.state.currentBarsCount}
-          addBars={this.addBars.bind(this)}
-          removeBars={this.removeBars.bind(this)}
-        />
-        <div>
+            <div id="hot" />
+            <SequencePager
+              trackLength={this.state.tracks.length}
+              currentBarsCount={this.state.currentBarsCount}
+              addBars={this.addBars.bind(this)}
+              removeBars={this.removeBars.bind(this)}
+            />
+          </section>
+        </div>
+        <div className="controller">
           <SequenceSlider
             bpm={this.state.bpm}
             swing={this.state.swing}
