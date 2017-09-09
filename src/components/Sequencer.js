@@ -1,6 +1,5 @@
 import _ from 'lodash';
 import React, { Component } from 'react';
-import ReactDOMServer from 'react-dom/server';
 import Button from 'react-toolbox/lib/button/Button';
 import Input from 'react-toolbox/lib/input/Input';
 import Checkbox from 'react-toolbox/lib/checkbox/Checkbox';
@@ -22,7 +21,7 @@ import SequenceSlider from './SequenceSlider';
 
 // script
 import timerWorker from '../scripts/timerWorker';
-import { drumNotes, pianoNotes } from '../scripts/sounds';
+import { drumNotes, pianoNotes, bassNotes } from '../scripts/sounds';
 
 import { audioContext, parseUrlHash, getHotDataFromUrlHash, scheduleSound, nextNote } from '../scripts/sequencerUtil';
 
@@ -36,11 +35,11 @@ class Sequencer extends Component {
     super(props);
     this.state = {
       title: DEFAULT_TITLE,
-      tracksLabel: ['Drum', 'Paino'],
+      tracksLabel: ['Drum', 'Paino', 'Bass'],
       tracks: [
-        [_.cloneDeep(drum), _.cloneDeep(none)],
+        [_.cloneDeep(drum), _.cloneDeep(none), _.cloneDeep(none)],
       ],
-      soundOn: [true, true],
+      soundOn: [true, true, true],
       bpm: 100,
       swing: 30,
       sustain: 50,
@@ -62,7 +61,6 @@ class Sequencer extends Component {
 
   componentDidMount() {
     Handsontable.dom.addEvent(window, 'hashchange', () => {
-
       this.hot.hotInstance.loadData(getHotDataFromUrlHash(this.state.tracks));
       this.setState({
         currentBarsCount: parseUrlHash(),
@@ -112,7 +110,7 @@ class Sequencer extends Component {
 
   addBars() {
     const tracks = _.cloneDeep(this.state.tracks);
-    tracks.push([_.cloneDeep(none), _.cloneDeep(none)]);
+    tracks.push([_.cloneDeep(none), _.cloneDeep(none), _.cloneDeep(none)]);
     this.hot.hotInstance.updateSettings({
       data: tracks,
     });
@@ -202,6 +200,14 @@ class Sequencer extends Component {
                     cellProperties = {
                       type: 'autocomplete',
                       source: Object.entries(pianoNotes).map(entrie => entrie[0]),
+                      strict: true,
+                      allowInvalid: false,
+                    };
+                  }
+                  if (visualRowIndex === 2) {
+                    cellProperties = {
+                      type: 'autocomplete',
+                      source: Object.entries(bassNotes).map(entrie => entrie[0]),
                       strict: true,
                       allowInvalid: false,
                     };
