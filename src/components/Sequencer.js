@@ -1,6 +1,5 @@
 import _ from 'lodash';
 import React, { Component } from 'react';
-import ReactDOM from 'react-dom';
 import Button from 'react-toolbox/lib/button/Button';
 import Input from 'react-toolbox/lib/input/Input';
 import Checkbox from 'react-toolbox/lib/checkbox/Checkbox';
@@ -64,7 +63,6 @@ class Sequencer extends Component {
   }
 
   componentDidMount() {
-    const self = this;
     hot = new Handsontable(document.getElementById('hot'), {
       data: getHotDataFromUrlHash(this.state.tracks),
       fillHandle: { // enable plugin in vertical direction and with autoInsertRow as false
