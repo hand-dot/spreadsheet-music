@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import React, { Component } from 'react';
 import uuid from 'uuid';
 import PropTypes from 'prop-types';

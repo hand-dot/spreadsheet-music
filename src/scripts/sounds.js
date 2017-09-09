@@ -1,8 +1,8 @@
 // sounds
-import OpenHihat from '../resource/sounds/rhythm/OpenHihat.wav';
-import CloseHihat from '../resource/sounds/rhythm/CloseHihat.wav';
-import Snare from '../resource/sounds/rhythm/Snare.wav';
-import Kick from '../resource/sounds/rhythm/Kick.wav';
+import OpenHihat from '../resource/sounds/rhythm/OpenHihat.mp3';
+import CloseHihat from '../resource/sounds/rhythm/CloseHihat.mp3';
+import Snare from '../resource/sounds/rhythm/Snare.mp3';
+import Kick from '../resource/sounds/rhythm/Kick.mp3';
 //---------------------------------------------------------
 import _Ab from '../resource/sounds/chord/Ab.mp3';
 import _Abm from '../resource/sounds/chord/Abm.mp3';

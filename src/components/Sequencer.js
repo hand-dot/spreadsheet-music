@@ -204,7 +204,7 @@ class Sequencer extends Component {
                   }
                   return {
                     type: 'autocomplete',
-                    source: Object.entries(notes).map(entrie => entrie[0]),
+                    source: _.keys(notes),
                     strict: true,
                     allowInvalid: false,
                   };
