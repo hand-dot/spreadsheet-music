@@ -10,6 +10,7 @@ import { DEFAULT_TITLE } from '../constants';
 
 class SaveDialog extends Component {
   save() {
+    this.props.stopSequencer();
     if (!window.confirm('save this sequence data?')) {
       return;
     }
@@ -32,6 +33,7 @@ class SaveDialog extends Component {
 
 SaveDialog.propTypes = {
   title: PropTypes.string,
+  stopSequencer: PropTypes.func,
 };
 
 SaveDialog.defaultProps = {
@@ -40,5 +42,6 @@ SaveDialog.defaultProps = {
   bpm: 100,
   swing: 30,
   sustain: 50,
+  stopSequencer: null,
 };
 export default SaveDialog;

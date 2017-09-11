@@ -3,8 +3,8 @@ import React, { Component } from 'react';
 import Button from 'react-toolbox/lib/button/Button';
 import Input from 'react-toolbox/lib/input/Input';
 import Checkbox from 'react-toolbox/lib/checkbox/Checkbox';
-import ReactHandsontable from 'react-handsontable';
 import Handsontable from 'handsontable';
+import 'handsontable/dist/handsontable.full.css';
 
 // constant
 import { SCHEDULER_TICK, SCHEDULER_LOOK_AHEAD, DEFAULT_TITLE } from '../constants';
@@ -27,6 +27,9 @@ import { audioContext, parseUrlHash, getHotDataFromUrlHash, scheduleSound, nextN
 
 // style
 import '../style/Sequencer.css';
+
+// handosontable
+let hot = null;
 
 timerWorker.postMessage({ interval: SCHEDULER_TICK });
 
@@ -60,8 +63,38 @@ class Sequencer extends Component {
   }
 
   componentDidMount() {
+    const self = this;
+    hot = new Handsontable(document.getElementById('hot'), {
+      fillHandle: {
+        autoInsertRow: false,
+        direction: 'horizontal',
+      },
+      data: getHotDataFromUrlHash(this.state.tracks),      
+      colWidths: Math.round(window.innerWidth / 17),
+      colHeaders: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
+      cells(row) {
+        let notes = null;
+        const visualRowIndex = this.instance.toVisualRow(row);
+        if (visualRowIndex === 0) {
+          notes = drumNotes;
+        } else if (visualRowIndex === 1) {
+          notes = pianoNotes;
+        } else if (visualRowIndex === 2) {
+          notes = bassNotes;
+        }
+        return {
+          type: 'autocomplete',
+          source: _.keys(notes),
+          strict: true,
+          allowInvalid: false,
+        };
+      },
+      rowHeaders(index) {
+        return self.state.tracksLabel[index];
+      },
+    });
     Handsontable.dom.addEvent(window, 'hashchange', () => {
-      this.hot.hotInstance.loadData(getHotDataFromUrlHash(this.state.tracks));
+      hot.loadData(getHotDataFromUrlHash(this.state.tracks));
       this.setState({
         currentBarsCount: parseUrlHash(),
       });
@@ -75,7 +108,7 @@ class Sequencer extends Component {
       swing: data.swing,
       sustain: data.sustain,
     });
-    this.hot.hotInstance.updateSettings({
+    hot.updateSettings({
       data: getHotDataFromUrlHash(data.tracks),
     });
   }
@@ -118,7 +151,7 @@ class Sequencer extends Component {
   addBars() {
     const tracks = _.cloneDeep(this.state.tracks);
     tracks.push([_.cloneDeep(none), _.cloneDeep(none), _.cloneDeep(none)]);
-    this.hot.hotInstance.updateSettings({
+    hot.updateSettings({
       data: tracks,
     });
     this.setState({
@@ -158,7 +191,6 @@ class Sequencer extends Component {
   }
 
   render() {
-    const self = this;
     return (
       <div>
         <h3>How to Play → <a href="https://youtu.be/FcaDeMz2H28">https://youtu.be/FcaDeMz2H28</a></h3>
@@ -181,39 +213,7 @@ class Sequencer extends Component {
               isPlaying={this.state.isPlaying}
               idxCurrent16thNote={this.state.idxCurrent16thNote}
             />
-            <ReactHandsontable
-              root="hot"
-              ref={(ref) => { this.hot = ref; }}
-              settings={{
-                data: getHotDataFromUrlHash(this.state.tracks),
-                fillHandle: {
-                  autoInsertRow: false,
-                  direction: 'horizontal',
-                },
-                colWidths: Math.round(window.innerWidth / 17),
-                colHeaders: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
-                cells(row) {
-                  let notes = null;
-                  const visualRowIndex = this.instance.toVisualRow(row);
-                  if (visualRowIndex === 0) {
-                    notes = drumNotes;
-                  } else if (visualRowIndex === 1) {
-                    notes = pianoNotes;
-                  } else if (visualRowIndex === 2) {
-                    notes = bassNotes;
-                  }
-                  return {
-                    type: 'autocomplete',
-                    source: _.keys(notes),
-                    strict: true,
-                    allowInvalid: false,
-                  };
-                },
-                rowHeaders(index) {
-                  return self.state.tracksLabel[index];
-                },
-              }}
-            />
+            <div id="hot" />
             <SequencePager
               trackLength={this.state.tracks.length}
               currentBarsCount={this.state.currentBarsCount}
@@ -236,6 +236,7 @@ class Sequencer extends Component {
             bpm={this.state.bpm}
             swing={this.state.swing}
             sustain={this.state.sustain}
+            stopSequencer={this.stop.bind(this)}
           />
           <LoadDialog
             loadData={this.loadData.bind(this)}
