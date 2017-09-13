@@ -10,7 +10,7 @@ import 'handsontable/dist/handsontable.full.css';
 import { SCHEDULER_TICK, SCHEDULER_LOOK_AHEAD, DEFAULT_TITLE } from '../constants';
 
 // data
-import { drum, none } from '../data/tracks';
+import { none } from '../data/tracks';
 
 // component
 import SaveDialog from './SaveDialog';
@@ -40,7 +40,7 @@ class Sequencer extends Component {
       title: DEFAULT_TITLE,
       tracksLabel: ['Drum', 'Paino', 'Bass'],
       tracks: [
-        [_.cloneDeep(drum), _.cloneDeep(none), _.cloneDeep(none)],
+        [_.cloneDeep(none), _.cloneDeep(none), _.cloneDeep(none)],
       ],
       soundOn: [true, true, true],
       bpm: 100,

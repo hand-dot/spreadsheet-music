@@ -1,5 +1,5 @@
 import _ from 'lodash';
-
+import Tone from 'tone';
 // script
 import BufferLoader from '../scripts/bufferloader';
 import soundObjs from '../scripts/sounds';
