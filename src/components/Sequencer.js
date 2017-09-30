@@ -44,7 +44,7 @@ class Sequencer extends Component {
       ],
       soundOn: [true, true, true],
       bpm: 100,
-      swing: 30,
+      swing: 0,
       sustain: 50,
       isPlaying: false,
       idxCurrent16thNote: 0,
@@ -69,7 +69,7 @@ class Sequencer extends Component {
         autoInsertRow: false,
         direction: 'horizontal',
       },
-      data: getHotDataFromUrlHash(this.state.tracks),      
+      data: getHotDataFromUrlHash(this.state.tracks),
       colWidths: Math.round(window.innerWidth / 17),
       colHeaders: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
       cells(row) {
@@ -101,7 +101,9 @@ class Sequencer extends Component {
     });
   }
   loadData(data) {
+    window.location.hash = 1;
     this.setState({
+      currentBarsCount: 1,
       title: data.title,
       tracks: data.tracks,
       bpm: data.bpm,
