@@ -193,11 +193,12 @@ class Sequencer extends Component {
   }
 
   render() {
+    const ml10 = { marginLeft: 10 };
     return (
       <div>
-        <h3>How to Play → <a href="https://youtu.be/FcaDeMz2H28">https://youtu.be/FcaDeMz2H28</a></h3>
+        <h3 style={ml10}>How to Play → <a href="https://youtu.be/FcaDeMz2H28">https://youtu.be/FcaDeMz2H28</a></h3>
         <hr />
-        <section>
+        <section style={ml10}>
           <Input type="text" label="Title" name="title" minLength={1} maxLength={32} value={this.state.title} onChange={this.handleChange.bind(this, 'title')} />
         </section>
         <div className="sequencer">
@@ -215,7 +216,7 @@ class Sequencer extends Component {
               isPlaying={this.state.isPlaying}
               idxCurrent16thNote={this.state.idxCurrent16thNote}
             />
-            <div id="hot" />
+            <div id="hot" style={{ height: 100 }} />
             <SequencePager
               trackLength={this.state.tracks.length}
               currentBarsCount={this.state.currentBarsCount}
@@ -224,7 +225,7 @@ class Sequencer extends Component {
             />
           </section>
         </div>
-        <div className="controller">
+        <div style={ml10} className="controller">
           <SequenceSlider
             bpm={this.state.bpm}
             swing={this.state.swing}
