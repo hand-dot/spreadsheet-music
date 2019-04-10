@@ -1,1 +1,1 @@
-https://hand-dot.github.io/
+https://hand-dot.github.io/spreadsheet-music/
