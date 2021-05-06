@@ -16,7 +16,7 @@
     "react-toolbox-themr": "^1.0.2",
     "reset-css": "^2.2.1",
     "tone": "^0.10.0",
-    "ua-parser-js": "^0.7.14",
+    "ua-parser-js": "^0.7.24",
     "uuid": "^3.1.0"
   },
   "scripts": {
